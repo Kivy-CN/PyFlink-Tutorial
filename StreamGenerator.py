@@ -3,10 +3,13 @@
 
 from kafka import KafkaProducer
 import time
+import os
 
 def send_file_to_kafka(file_path: str, topic: str, bootstrap_servers: str):
     # Create a KafkaProducer object with the given bootstrap servers
     producer = KafkaProducer(bootstrap_servers=bootstrap_servers)
+    # Get the size of the file in bytes
+    file_size = os.path.getsize(file_path)
     # Open the file in read binary mode
     while True:
         with open(file_path, "rb") as f:
@@ -19,13 +22,19 @@ def send_file_to_kafka(file_path: str, topic: str, bootstrap_servers: str):
                 # Send the data to the given topic
                 producer.send(topic, data)
                 # Print the number of bytes sent to the topic
-                print(f"Sent {len(data)} bytes to Kafka topic {topic}")
+                bytes_sent = len(data)
+                print(f"Sent {bytes_sent} bytes to Kafka topic {topic}")
+                # Calculate the percentage of the file sent
+                percent_sent = (f.tell() / file_size) * 100
+                # Print the percentage of the file sent
+                print(f"{percent_sent:.2f}% of the file sent")
                 # Wait for 0.5 seconds
                 time.sleep(0.5)
         # Wait for user input to continue or exit
         user_input = input("Press 'c' to continue sending the file or 'q' to quit: ")
         if user_input == "q":
             break
+
 
 # Call the function with the file path, topic, and bootstrap servers
 send_file_to_kafka("./hamlet.txt",  "hamlet", "localhost:9092")
