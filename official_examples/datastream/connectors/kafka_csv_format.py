@@ -62,8 +62,10 @@ def read_from_kafka(env):
 if __name__ == '__main__':
     logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(message)s")
 
-    env = StreamExecutionEnvironment.get_execution_environment()
-    env.add_jars("file:///path/to/flink-sql-connector-kafka-1.15.0.jar")
+    env = StreamExecutionEnvironment.get_execution_environment()    
+    env.add_jars(
+        "file:///home/hadoop/Desktop/PyFlink-Tutorial/flink-sql-connector-kafka-3.1-SNAPSHOT.jar")
+
 
     print("start writing data to kafka")
     write_to_kafka(env)
