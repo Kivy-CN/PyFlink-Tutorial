@@ -12,7 +12,8 @@ os.chdir(current_dir_path)
 import argparse
 import logging
 import sys
-
+import numpy as np 
+import pandas as pd
 from pyflink.common import Row
 from pyflink.table import (EnvironmentSettings, TableEnvironment, TableDescriptor, Schema,
                            DataTypes, FormatDescriptor)
