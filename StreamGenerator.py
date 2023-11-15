@@ -8,19 +8,24 @@ def send_file_to_kafka(file_path: str, topic: str, bootstrap_servers: str):
     # Create a KafkaProducer object with the given bootstrap servers
     producer = KafkaProducer(bootstrap_servers=bootstrap_servers)
     # Open the file in read binary mode
-    with open(file_path, "rb") as f:
-        # Read the file in chunks of 1024 bytes
-        while True:
-            data = f.read(1024)
-            # If no data is read, break out of the loop
-            if not data:
-                break
-            # Send the data to the given topic
-            producer.send(topic, data)
-            # Print the number of bytes sent to the topic
-            print(f"Sent {len(data)} bytes to Kafka topic {topic}")
-            # Wait for 0.5 seconds
-            time.sleep(0.5)
+    while True:
+        with open(file_path, "rb") as f:
+            # Read the file in chunks of 1024 bytes
+            while True:
+                data = f.read(1024)
+                # If no data is read, break out of the loop
+                if not data:
+                    break
+                # Send the data to the given topic
+                producer.send(topic, data)
+                # Print the number of bytes sent to the topic
+                print(f"Sent {len(data)} bytes to Kafka topic {topic}")
+                # Wait for 0.5 seconds
+                time.sleep(0.5)
+        # Wait for user input to continue or exit
+        user_input = input("Press 'c' to continue sending the file or 'q' to quit: ")
+        if user_input == "q":
+            break
 
 # Call the function with the file path, topic, and bootstrap servers
 send_file_to_kafka("./hamlet.txt",  "hamlet", "localhost:9092")
