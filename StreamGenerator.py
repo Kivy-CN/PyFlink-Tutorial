@@ -26,7 +26,7 @@ def send_file_to_kafka(file_path: str, topic: str, bootstrap_servers: str):
                 
                 # Print the number of bytes sent to the topic and thepercentage of the file sent
                 bytes_sent = len(data)
-                print(f"Sent {bytes_sent} bytes  {topic} {percent_sent:.2f}% sent")
+                print(f"Sent {bytes_sent} bytes {topic} {percent_sent:.2f}% sent")
                 # Wait for 3 seconds
                 time.sleep(3)
         # Wait for user input to continue or exit
