@@ -28,8 +28,8 @@ def send_file_to_kafka(file_path: str, topic: str, bootstrap_servers: str):
                 percent_sent = (f.tell() / file_size) * 100
                 # Print the percentage of the file sent
                 print(f"{percent_sent:.2f}% of the file sent")
-                # Wait for 0.5 seconds
-                time.sleep(0.5)
+                # Wait for 3 seconds
+                time.sleep(3)
         # Wait for user input to continue or exit
         user_input = input("Press 'c' to continue sending the file or 'q' to quit: ")
         if user_input == "q":
