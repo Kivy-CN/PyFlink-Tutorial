@@ -1,11 +1,11 @@
 version: '3'
 services:
   zookeeper:
-    image: wurstmeister/zookeeper
+    image: wurstmeister/zookeeper:3.5.6
     ports:
       - "2181:2181"
   kafka:
-    image: wurstmeister/kafka
+    image: wurstmeister/kafka:3.0.1
     ports:
       - "9092:9092"
     environment:
@@ -16,3 +16,11 @@ services:
       KAFKA_CREATE_TOPICS: "test:1:1"
     depends_on:
       - zookeeper
+
+
+# 可以使用以下命令停止并删除当前所有的 Docker 容器：
+# docker stop $(docker ps -a -q) && docker rm $(docker ps -a -q)
+# 这条命令会先停止所有正在运行的 Docker 容器，然后删除所有 Docker 容器。
+# 如果需要删除所有 Docker 镜像，可以使用以下命令：
+# docker rmi $(docker images -q)
+# 请注意，这些命令会删除所有 Docker 容器和镜像，包括正在运行的容器和镜像
