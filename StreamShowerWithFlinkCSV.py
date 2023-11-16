@@ -47,7 +47,8 @@ def read_from_kafka():
 
     # Add the Kafka consumer as a source to the Flink execution environment and print the messages to the console
     # env.add_source(kafka_consumer).map(lambda x: ' '.join(re.findall(r'\d+', x))).filter(lambda x: any([1900 <= int(i) <= 2023 for i in x.split()])).print()
-    env.add_source(kafka_consumer).map(lambda x: ' '.join(re.findall(r'\d+', x))).filter(lambda x: any([1900 <= int(i) <= 2023 for i in x.split()])).print()
+    # env.add_source(kafka_consumer).map(lambda x: ' '.join(re.findall(r'\d+', x))).filter(lambda x: any([1900 <= int(i) <= 2023 for i in x.split()])).print()
+    env.add_source(kafka_consumer).map(lambda x: ' '.join(re.findall(r'\d+', x))).filter(lambda x: any([1900 <= int(i) <= 2023 for i in x.split()])).map(lambda x: '3> ' + x).print()
     # submit for execution
     env.execute()
 
