@@ -47,7 +47,7 @@ def read_from_kafka():
 
     # # Start the Flink job
     # env.execute()
-
+    
     # ds = env.from_source(source=kafka_consumer, source_name= "kafka_consumer",watermark_strategy=WatermarkStrategy.for_monotonous_timestamps() )
     # # write all the data to one file
     
