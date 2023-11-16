@@ -5,7 +5,6 @@ import sys
 from io import StringIO
 import numpy as np 
 import pandas as pd
-import matplotlib.pyplot as plt
 from pyflink.table import StreamTableEnvironment
 from pyflink.common import WatermarkStrategy, Encoder, Types
 from pyflink.datastream import StreamExecutionEnvironment, RuntimeExecutionMode
@@ -32,6 +31,8 @@ def read_from_kafka():
     
     data_stream =  env.add_source(kafka_consumer).map(lambda x: ' '.join(re.findall(r'\d+', x))).filter(lambda x: any([Year_Begin <= int(i) <= Year_End for i in x.split()])).map(lambda x:  [i for i in x.split() if Year_Begin <= int(i) <= Year_End][0])
     
+    env.execute()
+    print('Is it Here yet?')
 
     # 创建一个新的图形
     fig, ax = plt.subplots()
@@ -49,7 +50,6 @@ def read_from_kafka():
 
     # 显示图形
     plt.show()
-    env.execute()
 
 if __name__ == '__main__':
     read_from_kafka()
