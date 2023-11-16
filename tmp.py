@@ -1,49 +1,55 @@
-import argparse
-import io
-import json
-import logging
 import os
+# Get current absolute path
+current_file_path = os.path.abspath(__file__)
+# Get current dir path
+current_dir_path = os.path.dirname(current_file_path)
+# Change into current dir path
+os.chdir(current_dir_path)
+output_path = current_dir_path
+
+
 import re
-from collections import Counter
-from io import StringIO
+import argparse
+import logging
+import sys
+import numpy as np 
 import pandas as pd
-from pyflink.common import SimpleStringSchema, Time
-from pyflink.datastream.connectors.kafka import FlinkKafkaConsumer, FlinkKafkaProducer
-from pyflink.datastream.formats.json import JsonRowSerializationSchema
+from pyflink.table import StreamTableEnvironment
+from pyflink.common import WatermarkStrategy, Encoder, Types
+from pyflink.datastream import StreamExecutionEnvironment, RuntimeExecutionMode
+from pyflink.datastream.connectors.file_system import FileSource, StreamFormat, FileSink, OutputFileConfig, RollingPolicy
+from pyflink.common import Types, SimpleStringSchema
 from pyflink.datastream import StreamExecutionEnvironment
-from pyflink.table import (DataTypes, EnvironmentSettings, FormatDescriptor,
-                           Schema, StreamTableEnvironment, TableDescriptor,
-                           TableEnvironment, udf)
-from pyflink.table.expressions import col, lit
-from pyflink.common.typeinfo import Types
+from pyflink.datastream.connectors.kafka import FlinkKafkaProducer, FlinkKafkaConsumer
 
-
-def remove_punctuation(text):
-    return re.sub(r'[^\w\s]','',text)
-
-def count_bytes(text):
-    return len(text.encode('utf-8'))
-
-def count_words(text):
-    words = text.split()
-    result = dict(Counter(words))
-    max_word = max(result, key=result.get)
-    return {'total_bytes': count_bytes(text), 'total_words': len(words), 'most_frequent_word': max_word, 'most_frequent_word_count': result[max_word]}
+def split(line):
+    yield from line.split()
 
 def read_from_kafka():
-    env = StreamExecutionEnvironment.get_execution_environment()  
+    # Create a Flink execution environment
+    env = StreamExecutionEnvironment.get_execution_environment()    
+
+    # Add the Flink SQL Kafka connector jar file to the classpath
     env.add_jars("file:///home/hadoop/Desktop/PyFlink-Tutorial/flink-sql-connector-kafka-3.1-SNAPSHOT.jar")
+
+    # Print a message to indicate that data reading from Kafka has started
     print("start reading data from kafka")
+
+    # Create a Kafka consumer
     kafka_consumer = FlinkKafkaConsumer(
-        topics='hamlet', 
-        deserialization_schema= SimpleStringSchema('UTF-8'), 
-        properties={'bootstrap.servers': 'localhost:9092', 'group.id': 'my-group'} 
+        topics='data', # The topic to consume messages from
+        deserialization_schema= SimpleStringSchema('UTF-8'), # The schema to deserialize messages
+        properties={'bootstrap.servers': 'localhost:9092', 'group.id': 'my-group'} # The Kafka broker address and consumer group ID
     )
+
+    # Start reading messages from the earliest offset
     kafka_consumer.set_start_from_earliest()
-    stream_original_text = env.add_source(kafka_consumer)
-    stream_remove_punctuation = stream_original_text.map(lambda x: remove_punctuation(x))
-    stream_count_words = stream_remove_punctuation.map(lambda x: count_words(x))
-    stream_count_words.print()
+
+    # Add the Kafka consumer as a source to the Flink execution environment and print the messages to the console
+    env.add_source(kafka_consumer).map(lambda x: ' '.join(re.findall(r'\d+', x))).filter(lambda x: any([1900 <= int(i) <= 2023 for i in x.split()])).print()
+    # submit for execution
     env.execute()
 
-read_from_kafka()
+if __name__ == '__main__':
+    # logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(message)s")
+    read_from_kafka()
