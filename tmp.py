@@ -30,26 +30,9 @@ def read_from_kafka():
     kafka_consumer.set_start_from_earliest()
     
     data_stream =  env.add_source(kafka_consumer).map(lambda x: ' '.join(re.findall(r'\d+', x))).filter(lambda x: any([Year_Begin <= int(i) <= Year_End for i in x.split()])).map(lambda x:  [i for i in x.split() if Year_Begin <= int(i) <= Year_End][0])
-    
+    data_stream.print()
     env.execute()
     print('Is it Here yet?')
-
-    # 创建一个新的图形
-    fig, ax = plt.subplots()
-
-    # 绘制动态折线图
-    def update(data):
-        ax.clear()
-        ax.plot(data)
-        ax.set_xlabel('Time')
-        ax.set_ylabel('Value')
-        ax.set_title('Data Visualization')
-        plt.pause(0.1)
-
-    data_stream.map(lambda x: float(x)).add_sink(lambda x: update(x))
-
-    # 显示图形
-    plt.show()
 
 if __name__ == '__main__':
     read_from_kafka()
