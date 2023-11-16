@@ -48,19 +48,20 @@ def read_from_kafka():
     # Start reading messages from the earliest offset
     kafka_consumer.set_start_from_earliest()
 
-    # 重定向sys.stdout到一个io.StringIO对象
-    output = StringIO()
-    sys.stdout = output
+    # # 重定向sys.stdout到一个io.StringIO对象
+    # output = StringIO()
+    # sys.stdout = output
 
     # Add the Kafka consumer as a source to the Flink execution environment and print the messages to the console
     env.add_source(kafka_consumer).map(lambda x: ' '.join(re.findall(r'\d+', x))).filter(lambda x: any([Year_Begin <= int(i) <= Year_End for i in x.split()])).map(lambda x:  [i for i in x.split() if Year_Begin <= int(i) <= Year_End][0]).print()
+
+    # # 恢复sys.stdout
+    # sys.stdout = sys.__stdout__
+
+    # # 输出捕获的内容
+    # print(output.getvalue())
+    
     # submit for execution
-    # 恢复sys.stdout
-    sys.stdout = sys.__stdout__
-
-    # 输出捕获的内容
-    print(output.getvalue())
-
     env.execute()
 
 if __name__ == '__main__':
