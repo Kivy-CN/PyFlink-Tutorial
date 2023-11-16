@@ -36,7 +36,7 @@ def send_file_to_kafka(file_path: str, topic: str, bootstrap_servers: str):
 
 
 # Call the function with the file path, topic, and bootstrap servers
-send_file_to_kafka("./data.csv",  "data", "localhost:9092")
+send_file_to_kafka("./data.csv",  "hamlet", "localhost:9092")
 
 # In this code, the send_file_to_kafka function accepts three parameters: file_path, topic, and bootstrap_servers. 
 # file_path is the path to the local file, topic is the Kafka topic to which the data should be sent, and bootstrap_servers is the address of the Kafka cluster. 
