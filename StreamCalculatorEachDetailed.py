@@ -18,15 +18,17 @@ from pyflink.table.expressions import col, lit
 def remove_punctuation(text):
     return re.sub(r'[^\w\s]','',text)
 
+def count_bytes(text):
+    return len(text.encode('utf-8'))
+
 def count_words(text):
     words = text.split()
-    # return Counter(words)
     result = dict(Counter(words))
-    return(result)
+    max_word = max(result, key=result.get)
+    return {'total_bytes': count_bytes(text), 'total_words': len(words), 'most_frequent_word': max_word, 'most_frequent_word_count': result[max_word]}
 
 def read_from_kafka():
-    env = StreamExecutionEnvironment.get_execution_environment()    
-    t_env = StreamTableEnvironment.create(env)
+    env = StreamExecutionEnvironment.get_execution_environment()  
     env.add_jars("file:///home/hadoop/Desktop/PyFlink-Tutorial/flink-sql-connector-kafka-3.1-SNAPSHOT.jar")
     print("start reading data from kafka")
     kafka_consumer = FlinkKafkaConsumer(
@@ -39,11 +41,7 @@ def read_from_kafka():
     stream_original_text = env.add_source(kafka_consumer)
     stream_remove_punctuation = stream_original_text.map(lambda x: remove_punctuation(x))
     stream_count_words = stream_remove_punctuation.map(lambda x: count_words(x))
-    table = stream_count_words.to_table(t_env, name='word_count', fields=[col('word'), col('count')])
-    table.window(Tumble.over(lit(90).seconds).on(col('rowtime')).alias('w')) \
-         .group_by(col('w')) \
-         .select(col('w').start.alias('start_time'), col('w').end.alias('end_time'), col('word'), col('count').sum().alias('count')) \
-         .execute() \
-         .print()
+    stream_count_words.print()
+    env.execute()
 
 read_from_kafka()
