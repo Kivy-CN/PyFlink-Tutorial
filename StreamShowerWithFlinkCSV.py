@@ -1,5 +1,4 @@
 import os
-import re
 # Get current absolute path
 current_file_path = os.path.abspath(__file__)
 # Get current dir path
@@ -7,6 +6,9 @@ current_dir_path = os.path.dirname(current_file_path)
 # Change into current dir path
 os.chdir(current_dir_path)
 output_path = current_dir_path
+
+
+import re
 import argparse
 import logging
 import sys
@@ -44,15 +46,10 @@ def read_from_kafka():
     kafka_consumer.set_start_from_earliest()
 
     # Add the Kafka consumer as a source to the Flink execution environment and print the messages to the console
-    # env.add_source(kafka_consumer).print()
-    # Add the Kafka consumer as a source to the Flink execution environment and print the messages to the console
-    env.add_source(kafka_consumer).filter(lambda x: any([1900 <= int(i) <= 2023 for i in re.findall(r'\d+', x)])).print()
+    env.add_source(kafka_consumer).map(lambda x: ' '.join(re.findall(r'\d+', x))).filter(lambda x: any([1900 <= int(i) <= 2023 for i in x.split()])).print()
     # submit for execution
     env.execute()
 
 if __name__ == '__main__':
-    # Set up logging
-    logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(message)s")
-
-    # Call the read_from_kafka function
+    # logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(message)s")
     read_from_kafka()
