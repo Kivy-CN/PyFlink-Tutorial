@@ -34,10 +34,10 @@ def read_from_kafka():
     kafka_consumer.set_start_from_earliest()
 
     # Add the Kafka consumer as a source to the Flink execution environment
-    stream = env.add_source(kafka_consumer)
+    stream_original_text = env.add_source(kafka_consumer)
 
     # Remove punctuation from the text
-    stream_remove_punctuation = stream.map(lambda x: remove_punctuation(x))
+    stream_remove_punctuation = stream_original_text.map(lambda x: remove_punctuation(x))
 
     # Count the words in the text
     stream_count_words = stream_remove_punctuation.map(lambda x: count_words(x))
