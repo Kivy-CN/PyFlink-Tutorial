@@ -14,7 +14,7 @@ for message in consumer:
     print(f"Received {len(message.value)} bytes from Kafka topic {message.topic}")
     # Print the contents of the message
     print(f"{message.value}")
-    return(message.value)
+    # return(message.value)
 
 
 # In the above code, we use the `KafkaConsumer` class to create a consumer object. 
