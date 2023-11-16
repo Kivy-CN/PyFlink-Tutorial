@@ -13,9 +13,9 @@ def send_file_to_kafka(file_path: str, topic: str, bootstrap_servers: str):
     # Open the file in read binary mode
     while True:
         with open(file_path, "rb") as f:
-            # Read the file in chunks of 1024 bytes
+            # Read the file in chunks of 10 lines
             while True:
-                data = f.read(1024)
+                data = f.readlines(10)
                 # If no data is read, break out of the loop
                 if not data:
                     break
