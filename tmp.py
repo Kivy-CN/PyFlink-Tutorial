@@ -5,6 +5,7 @@ import sys
 from io import StringIO
 import numpy as np 
 import pandas as pd
+import matplotlib.pyplot as plt
 from pyflink.table import StreamTableEnvironment
 from pyflink.common import WatermarkStrategy, Encoder, Types
 from pyflink.datastream import StreamExecutionEnvironment, RuntimeExecutionMode
