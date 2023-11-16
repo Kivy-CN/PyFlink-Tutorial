@@ -1,21 +1,35 @@
 import os
 import re
 from collections import Counter
-from pyflink.table import StreamTableEnvironment
 from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.datastream.connectors.kafka import FlinkKafkaConsumer
 from pyflink.common import SimpleStringSchema
+import argparse
+import logging
+import sys
+from pyflink.table import StreamTableEnvironment, TableEnvironment, EnvironmentSettings, TableDescriptor, Schema,\
+    DataTypes, FormatDescriptor
+from pyflink.table.expressions import col, lit
+from pyflink.table.udf import udf
+import pandas as pd
+from pyflink.table import StreamTableEnvironment
+from pyflink.table import DataTypes
+from io import StringIO
+import json
 
 def remove_punctuation(text):
     return re.sub(r'[^\w\s]','',text)
 
 def count_words(text):
     words = text.split()
-    return Counter(words)
+    # return Counter(words)
+    result = dict(Counter(words))
+    return(result)
 
 def read_from_kafka():
     # Create a Flink execution environment
     env = StreamExecutionEnvironment.get_execution_environment()    
+    t_env = StreamTableEnvironment.create(env)
 
     # Add the Flink SQL Kafka connector jar file to the classpath
     env.add_jars("file:///home/hadoop/Desktop/PyFlink-Tutorial/flink-sql-connector-kafka-3.1-SNAPSHOT.jar")
@@ -44,7 +58,9 @@ def read_from_kafka():
 
     # Print the word counts to the console
     stream_count_words.print()
-
+    
+    print('\n\n',type(stream_count_words),'\n\n')
+    
     # Start the Flink job
     env.execute()
 
