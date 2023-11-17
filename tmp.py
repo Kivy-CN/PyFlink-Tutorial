@@ -34,11 +34,12 @@ def read_from_kafka():
     data_stream =  env.add_source(kafka_consumer).map(lambda x: ' '.join(re.findall(r'\d+', x))).filter(lambda x: any([Year_Begin <= int(i) <= Year_End for i in x.split()])).map(lambda x:  [i for i in x.split() if Year_Begin <= int(i) <= Year_End][0])
     # data_stream.print()
     current_time = time.strftime("%Y%m%d-%H%M%S")
-    # convert a DataStream to a Table
     table = t_env.from_data_stream(data_stream)
+    table.print()
     table.print_schema()
-    env.execute()
     t_env.execute()
+    print("table end reading data from kafka")
+    env.execute()
     print('Is it Here yet?')
 
 if __name__ == '__main__':
