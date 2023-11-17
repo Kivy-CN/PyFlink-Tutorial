@@ -2,6 +2,7 @@ import re
 import argparse
 import logging
 import sys
+import time
 from io import StringIO
 import numpy as np 
 import pandas as pd
@@ -39,7 +40,7 @@ def read_from_kafka():
     # file_name = f"data_tmp{current_time}.txt"
     # data_stream.write_to_text(file_name)
     # print(f"已经写入文件 {file_name}")
-    
+
     env.execute()
     t_env.execute()
     print('Is it Here yet?')
