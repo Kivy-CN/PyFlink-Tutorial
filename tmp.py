@@ -37,6 +37,9 @@ def read_from_kafka():
     table = t_env.from_data_stream(data_stream)
     # table.print_schema()
     print(table.explain())
+    # Convert the PyFlink Table to a Pandas DataFrame
+    pdf = table.limit(100).to_pandas()
+    print(pdf)
     print("table end reading data from kafka")
     env.execute()
     print("data stream end reading data from kafka")
