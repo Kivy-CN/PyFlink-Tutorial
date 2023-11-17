@@ -35,7 +35,6 @@ def read_from_kafka():
     # data_stream.print()
     current_time = time.strftime("%Y%m%d-%H%M%S")
     table = t_env.from_data_stream(data_stream)
-    table.print()
     table.print_schema()
     t_env.execute()
     print("table end reading data from kafka")
