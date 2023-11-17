@@ -32,15 +32,11 @@ def read_from_kafka():
     kafka_consumer.set_start_from_earliest()
     
     data_stream =  env.add_source(kafka_consumer).map(lambda x: ' '.join(re.findall(r'\d+', x))).filter(lambda x: any([Year_Begin <= int(i) <= Year_End for i in x.split()])).map(lambda x:  [i for i in x.split() if Year_Begin <= int(i) <= Year_End][0])
-    data_stream.print()
+    # data_stream.print()
     current_time = time.strftime("%Y%m%d-%H%M%S")
     # convert a DataStream to a Table
     table = t_env.from_data_stream(data_stream)
-
-    # file_name = f"data_tmp{current_time}.txt"
-    # data_stream.write_to_text(file_name)
-    # print(f"已经写入文件 {file_name}")
-
+    table.print_schema()
     env.execute()
     t_env.execute()
     print('Is it Here yet?')
