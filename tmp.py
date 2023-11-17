@@ -36,15 +36,7 @@ def read_from_kafka():
     current_time = time.strftime("%Y%m%d-%H%M%S")
     table = t_env.from_data_stream(data_stream)
     # table.print_schema()
-    sink = FileSink \
-        .for_row_format('./', Encoder.simple_string_encoder()) \
-        .with_output_file_config(OutputFileConfig.builder()
-                                 .with_part_prefix('prefix')
-                                 .with_part_suffix('.txt')
-                                 .build()) \
-        .with_rolling_policy(RollingPolicy.default_rolling_policy()) \
-        .build()
-    table.execute_insert(sink).wait()
+    print(table.explain())
     print("table end reading data from kafka")
     env.execute()
     print("data stream end reading data from kafka")
