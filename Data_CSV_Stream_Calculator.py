@@ -14,35 +14,52 @@ from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.datastream.connectors.kafka import FlinkKafkaProducer, FlinkKafkaConsumer
 
 def split(line):
+    # 将行拆分成单词
     yield from line.split()
 
 def read_from_kafka():
+    # 定义开始年份和结束年份
     Year_Begin =1999
     Year_End = 2023
+    # 获取流环境
     env = StreamExecutionEnvironment.get_execution_environment()    
+    # 添加jar包
     env.add_jars("file:///home/hadoop/Desktop/PyFlink-Tutorial/flink-sql-connector-kafka-3.1-SNAPSHOT.jar")
     print("start reading data from kafka")
+    # 创建kafka消费者
     kafka_consumer = FlinkKafkaConsumer(
         topics='data', 
         deserialization_schema= SimpleStringSchema('UTF-8'),
         properties={'bootstrap.servers': 'localhost:9092', 'group.id': 'my-group'} 
     )
+    # 从最早开始读取数据
     kafka_consumer.set_start_from_earliest()
+    # 创建输出流
     output = StringIO()
     sys.stdout = output
+    # 添加源，并过滤出指定年份的数据
     env.add_source(kafka_consumer).map(lambda x: ' '.join(re.findall(r'\d+', x))).filter(lambda x: any([Year_Begin <= int(i) <= Year_End for i in x.split()])).map(lambda x:  [i for i in x.split() if Year_Begin <= int(i) <= Year_End][0]).print()
+    # 将输出流重置为标准输出流
     sys.stdout = sys.__stdout__
+    # 打印输出流
     print(output.getvalue())
+    # 将输出流转换为DataFrame
     df = pd.read_csv(StringIO(output.getvalue()), sep=" ", header=None)
+    # 设置DataFrame的列名
     df.columns = ["year"]
+    # 获取DataFrame中不重复的年份
     unique_years = df["year"].unique()
+    # 获取不重复年份的数量
     unique_years_count = df["year"].nunique()
+    # 获取不重复年份的排序列表
     unique_years_sorted = df["year"].value_counts().sort_values(ascending=False).index.tolist()
 
     print(f"当前所获得数据中的不重复年份有 {unique_years_count} 个，从多到少排列如下：")
+    # 遍历不重复年份，打印每个年份出现的次数
     for year in unique_years_sorted:
         print(f"{year} 出现了 {df['year'].value_counts()[year]} 次")
 
+    # 执行流作业
     env.execute()
 
 if __name__ == '__main__':
