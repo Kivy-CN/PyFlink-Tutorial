@@ -24,11 +24,14 @@ from pyflink.datastream.functions import KeyedProcessFunction, RuntimeContext
 from pyflink.datastream.state import ValueStateDescriptor, StateTtlConfig
 
 
+# 定义Sum类，继承自KeyedProcessFunction
 class Sum(KeyedProcessFunction):
 
+    # 初始化函数
     def __init__(self):
         self.state = None
 
+    # 打开函数，获取状态描述符，设置状态TTL配置，并设置状态描述符的TTL配置
     def open(self, runtime_context: RuntimeContext):
         state_descriptor = ValueStateDescriptor("state", Types.FLOAT())
         state_ttl_config = StateTtlConfig \
@@ -39,6 +42,7 @@ class Sum(KeyedProcessFunction):
         state_descriptor.enable_time_to_live(state_ttl_config)
         self.state = runtime_context.get_state(state_descriptor)
 
+    # 处理元素函数，获取当前状态，更新状态，并注册一个2秒后的定时器
     def process_element(self, value, ctx: 'KeyedProcessFunction.Context'):
         # retrieve the current count
         current = self.state.value()
@@ -52,16 +56,20 @@ class Sum(KeyedProcessFunction):
         # register an event time timer 2 seconds later
         ctx.timer_service().register_event_time_timer(ctx.timestamp() + 2000)
 
+    # 定时器函数，获取当前状态，并输出
     def on_timer(self, timestamp: int, ctx: 'KeyedProcessFunction.OnTimerContext'):
         yield ctx.get_current_key(), self.state.value()
 
 
+# 定义MyTimestampAssigner类，继承自TimestampAssigner
 class MyTimestampAssigner(TimestampAssigner):
 
+    # 提取时间戳函数，根据value和record_timestamp获取时间戳
     def extract_timestamp(self, value, record_timestamp: int) -> int:
         return int(value[0])
 
 
+# 定义event_timer_timer_demo函数，获取执行环境，从集合中获取数据，设置时间戳和水位策略，并应用处理函数，提交执行
 def event_timer_timer_demo():
     env = StreamExecutionEnvironment.get_execution_environment()
 

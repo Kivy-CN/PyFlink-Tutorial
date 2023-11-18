@@ -29,16 +29,19 @@ from pyflink.datastream.window import EventTimeSessionWindows, \
     SessionWindowTimeGapExtractor, TimeWindow
 
 
+# 定义一个MyTimestampAssigner类，继承自TimestampAssigner，重写extract_timestamp方法，返回int类型的值
 class MyTimestampAssigner(TimestampAssigner):
     def extract_timestamp(self, value, record_timestamp) -> int:
         return int(value[1])
 
 
+# 定义一个MySessionWindowTimeGapExtractor类，继承自SessionWindowTimeGapExtractor，重写extract方法，返回int类型的值
 class MySessionWindowTimeGapExtractor(SessionWindowTimeGapExtractor):
     def extract(self, element: tuple) -> int:
         return element[1]
 
 
+# 定义一个CountWindowProcessFunction类，继承自ProcessWindowFunction，重写process方法，返回一个tuple类型的值
 class CountWindowProcessFunction(ProcessWindowFunction[tuple, tuple, str, TimeWindow]):
     def process(self,
                 key: str,
@@ -47,6 +50,7 @@ class CountWindowProcessFunction(ProcessWindowFunction[tuple, tuple, str, TimeWi
         return [(key, context.window().start, context.window().end, len([e for e in elements]))]
 
 
+# 定义一个主函数，解析参数，设置并行度，从集合中读取数据，设置watermark策略，定义窗口，定义ProcessWindowFunction，设置输出路径，提交执行，打印结果
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -59,25 +63,30 @@ if __name__ == '__main__':
     known_args, _ = parser.parse_known_args(argv)
     output_path = known_args.output
 
+    # 设置并行度
     env = StreamExecutionEnvironment.get_execution_environment()
     # write all the data to one file
     env.set_parallelism(1)
 
     # define the source
+    # 定义源数据流
     data_stream = env.from_collection([
         ('hi', 1), ('hi', 2), ('hi', 3), ('hi', 4), ('hi', 8), ('hi', 9), ('hi', 15)],
         type_info=Types.TUPLE([Types.STRING(), Types.INT()]))
 
     # define the watermark strategy
+    # 设置watermark策略
     watermark_strategy = WatermarkStrategy.for_monotonous_timestamps() \
         .with_timestamp_assigner(MyTimestampAssigner())
 
+    # 定义窗口，并设置ProcessWindowFunction
     ds = data_stream.assign_timestamps_and_watermarks(watermark_strategy) \
         .key_by(lambda x: x[0], key_type=Types.STRING()) \
         .window(EventTimeSessionWindows.with_dynamic_gap(MySessionWindowTimeGapExtractor())) \
         .process(CountWindowProcessFunction(),
                  Types.TUPLE([Types.STRING(), Types.INT(), Types.INT(), Types.INT()]))
 
+    # 设置输出路径
     # define the sink
     if output_path is not None:
         ds.sink_to(
@@ -96,5 +105,6 @@ if __name__ == '__main__':
         print("Printing result to stdout. Use --output to specify output path.")
         ds.print()
 
+    # 提交执行
     # submit for execution
     env.execute()

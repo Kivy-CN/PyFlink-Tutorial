@@ -28,11 +28,15 @@ from pyflink.table.window import Tumble
 
 
 def tumble_window_demo():
+    # 获取当前的StreamExecutionEnvironment
     env = StreamExecutionEnvironment.get_execution_environment()
+    # 设置并行度为1
     env.set_parallelism(1)
+    # 创建StreamTableEnvironment
     t_env = StreamTableEnvironment.create(stream_execution_environment=env)
 
     # define the source with watermark definition
+    # 定义源，并设置watermark
     ds = env.from_collection(
         collection=[
             (Instant.of_epoch_milli(1000), 'Alice', 110.1),
@@ -46,6 +50,7 @@ def tumble_window_demo():
         ],
         type_info=Types.ROW([Types.INSTANT(), Types.STRING(), Types.FLOAT()]))
 
+    # 将源转换为Table
     table = t_env.from_data_stream(
         ds,
         Schema.new_builder()
@@ -57,6 +62,7 @@ def tumble_window_demo():
     ).alias("ts", "name", "price")
 
     # define the sink
+    # 定义sink
     t_env.create_temporary_table(
         'sink',
         TableDescriptor.for_connector('print')
@@ -69,19 +75,24 @@ def tumble_window_demo():
                        .build())
 
     # define the tumble window operation
+    # 定义 tumble window 操作
     table = table.window(Tumble.over(lit(5).seconds).on(col("ts")).alias("w")) \
                  .group_by(col('name'), col('w')) \
                  .select(col('name'), col('price').sum, col("w").start, col("w").end)
 
     # submit for execution
+    # 提交执行
     table.execute_insert('sink') \
          .wait()
     # remove .wait if submitting to a remote cluster, refer to
     # https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/python/faq/#wait-for-jobs-to-finish-when-executing-jobs-in-mini-cluster
+    # 移除.wait() 如果是提交到远程集群，参考https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/python/faq/#wait-for-jobs-to-finish-when-executing-jobs-in-mini-cluster
+    # 获取更多详情
     # for more details
 
 
 if __name__ == '__main__':
+    # 设置日志输出格式
     logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(message)s")
 
     tumble_window_demo()

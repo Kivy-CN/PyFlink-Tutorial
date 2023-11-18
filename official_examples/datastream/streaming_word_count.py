@@ -24,6 +24,7 @@ from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.datastream.connectors.file_system import (FileSink, OutputFileConfig, RollingPolicy)
 from pyflink.table import StreamTableEnvironment, TableDescriptor, Schema, DataTypes
 
+# 定义一个函数word_count，用于计算单词计数
 words = ["flink", "window", "timer", "event_time", "processing_time", "state",
          "connector", "pyflink", "checkpoint", "watermark", "sideoutput", "sql",
          "datastream", "broadcast", "asyncio", "catalog", "batch", "streaming"]
@@ -32,11 +33,15 @@ max_word_id = len(words) - 1
 
 
 def word_count(output_path):
+    # 获取StreamExecutionEnvironment实例
     env = StreamExecutionEnvironment.get_execution_environment()
+    # 创建StreamTableEnvironment实例
     t_env = StreamTableEnvironment.create(stream_execution_environment=env)
 
     # define the source
     # randomly select 5 words per second from a predefined list
+    # 定义源表
+    # 从words列表中随机选择5个单词，每个单词一行
     t_env.create_temporary_table(
         'source',
         TableDescriptor.for_connector('datagen')
@@ -54,15 +59,18 @@ def word_count(output_path):
 
     def id_to_word(r):
         # word_id is the first column of the input row
+        # word_id是第一个列
         return words[r[0]]
 
     # compute word count
+    # 计算单词计数
     ds = ds.map(id_to_word) \
            .map(lambda i: (i, 1), output_type=Types.TUPLE([Types.STRING(), Types.INT()])) \
            .key_by(lambda i: i[0]) \
            .reduce(lambda i, j: (i[0], i[1] + j[1]))
 
     # define the sink
+    # 定义输出表
     if output_path is not None:
         ds.sink_to(
             sink=FileSink.for_row_format(
@@ -81,20 +89,26 @@ def word_count(output_path):
         ds.print()
 
     # submit for execution
+    # 提交执行
     env.execute()
 
 
 if __name__ == '__main__':
+    # 设置日志输出格式
     logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(message)s")
 
+    # 创建参数解析器
     parser = argparse.ArgumentParser()
+    # 添加参数
     parser.add_argument(
         '--output',
         dest='output',
         required=False,
         help='Output file to write results to.')
 
+    # 解析参数
     argv = sys.argv[1:]
     known_args, _ = parser.parse_known_args(argv)
 
+    # 调用word_count函数
     word_count(known_args.output)

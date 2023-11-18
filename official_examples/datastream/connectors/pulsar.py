@@ -25,16 +25,24 @@ from pyflink.datastream.connectors.pulsar import PulsarSource, PulsarSink, Start
     StopCursor, DeliveryGuarantee, TopicRoutingMode
 
 if __name__ == '__main__':
+    # 设置日志输出格式
     logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(message)s")
 
+    # 设置Pulsar连接器路径
     PULSAR_SQL_CONNECTOR_PATH = 'file:///path/to/flink-sql-connector-pulsar-1.16.0.jar'
+    # 设置服务URL
     SERVICE_URL = 'pulsar://localhost:6650'
+    # 设置管理员URL
     ADMIN_URL = 'http://localhost:8080'
 
+    # 获取StreamExecutionEnvironment实例
     env = StreamExecutionEnvironment.get_execution_environment()
+    # 设置并行度
     env.set_parallelism(1)
+    # 添加Pulsar连接器
     env.add_jars(PULSAR_SQL_CONNECTOR_PATH)
 
+    # 创建PulsarSource实例
     pulsar_source = PulsarSource.builder() \
         .set_service_url(SERVICE_URL) \
         .set_admin_url(ADMIN_URL) \
@@ -47,10 +55,12 @@ if __name__ == '__main__':
         .set_properties({'pulsar.source.autoCommitCursorInterval': '1000'}) \
         .build()
 
+    # 从PulsarSource中创建数据流
     ds = env.from_source(source=pulsar_source,
                          watermark_strategy=WatermarkStrategy.for_monotonous_timestamps(),
                          source_name="pulsar source")
 
+    # 创建PulsarSink实例
     pulsar_sink = PulsarSink.builder() \
         .set_service_url(SERVICE_URL) \
         .set_admin_url(ADMIN_URL) \
@@ -63,6 +73,8 @@ if __name__ == '__main__':
         .set_properties({'pulsar.producer.batchingMaxMessages': '100'}) \
         .build()
 
+    # 将数据流sink到PulsarSink
     ds.sink_to(pulsar_sink).name('pulsar sink')
 
+    # 执行任务
     env.execute()

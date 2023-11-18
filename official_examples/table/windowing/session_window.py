@@ -27,12 +27,17 @@ from pyflink.table.expressions import lit, col
 from pyflink.table.window import Session
 
 
+# 定义一个session_window_demo函数
 def session_window_demo():
+    # 获取当前的StreamExecutionEnvironment实例
     env = StreamExecutionEnvironment.get_execution_environment()
+    # 设置并行度为1
     env.set_parallelism(1)
+    # 创建一个StreamTableEnvironment实例
     t_env = StreamTableEnvironment.create(stream_execution_environment=env)
 
     # define the source with watermark definition
+    # 定义一个数据源，并设置watermark定义
     ds = env.from_collection(
         collection=[
             (Instant.of_epoch_milli(1000), 'Alice', 110.1),
@@ -44,6 +49,7 @@ def session_window_demo():
         ],
         type_info=Types.ROW([Types.INSTANT(), Types.STRING(), Types.FLOAT()]))
 
+    # 将数据源转换为StreamTable
     table = t_env.from_data_stream(
         ds,
         Schema.new_builder()
@@ -55,6 +61,7 @@ def session_window_demo():
     ).alias("ts", "name", "price")
 
     # define the sink
+    # 定义一个临时表，用于存储结果
     t_env.create_temporary_table(
         'sink',
         TableDescriptor.for_connector('print')
@@ -67,19 +74,25 @@ def session_window_demo():
                        .build())
 
     # define the session window operation
+    # 定义一个session window操作
     table = table.window(Session.with_gap(lit(5).seconds).on(col("ts")).alias("w")) \
                  .group_by(col('name'), col('w')) \
                  .select(col('name'), col('price').sum, col("w").start, col("w").end)
 
     # submit for execution
+    # 提交执行
     table.execute_insert('sink') \
          .wait()
     # remove .wait if submitting to a remote cluster, refer to
     # https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/python/faq/#wait-for-jobs-to-finish-when-executing-jobs-in-mini-cluster
     # for more details
+    # 移除.wait()，如果提交到远程集群，参考https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/python/faq/#wait-for-jobs-to-finish-when-executing-jobs-in-mini-cluster
+    # 获取更多详情
 
 
 if __name__ == '__main__':
+    # 设置日志输出格式
     logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(message)s")
 
+    # 调用session_window_demo函数
     session_window_demo()

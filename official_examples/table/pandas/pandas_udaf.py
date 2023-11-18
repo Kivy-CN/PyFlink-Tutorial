@@ -29,11 +29,15 @@ from pyflink.table.window import Tumble
 
 
 def pandas_udaf():
+    # 获取StreamExecutionEnvironment实例
     env = StreamExecutionEnvironment.get_execution_environment()
+    # 设置并行度为1
     env.set_parallelism(1)
+    # 创建StreamTableEnvironment实例
     t_env = StreamTableEnvironment.create(stream_execution_environment=env)
 
     # define the source with watermark definition
+    # 定义源数据流，并设置watermark
     ds = env.from_collection(
         collection=[
             (Instant.of_epoch_milli(1000), 'Alice', 110.1),
@@ -47,6 +51,7 @@ def pandas_udaf():
         ],
         type_info=Types.ROW([Types.INSTANT(), Types.STRING(), Types.FLOAT()]))
 
+    # 将数据流转换为Table
     table = t_env.from_data_stream(
         ds,
         Schema.new_builder()
@@ -58,6 +63,7 @@ def pandas_udaf():
     ).alias("ts", "name", "price")
 
     # define the sink
+    # 定义sink
     t_env.create_temporary_table(
         'sink',
         TableDescriptor.for_connector('print')
@@ -69,24 +75,31 @@ def pandas_udaf():
                                .build())
                        .build())
 
+    # 定义UDAF函数
     @udaf(result_type=DataTypes.FLOAT(), func_type="pandas")
     def mean_udaf(v):
         return v.mean()
 
     # define the tumble window operation
+    # 定义 tumble window operation
     table = table.window(Tumble.over(lit(5).seconds).on(col("ts")).alias("w")) \
                  .group_by(col('name'), col('w')) \
                  .select(col('name'), mean_udaf(col('price')), col("w").start, col("w").end)
 
     # submit for execution
+    # 提交执行
     table.execute_insert('sink') \
          .wait()
     # remove .wait if submitting to a remote cluster, refer to
     # https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/python/faq/#wait-for-jobs-to-finish-when-executing-jobs-in-mini-cluster
     # for more details
+    # 移除.wait()，如果提交到远程集群，参考https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/python/faq/#wait-for-jobs-to-finish-when-executing-jobs-in-mini-cluster
+    # 获取更多详情
 
 
 if __name__ == '__main__':
+    # 设置日志输出格式
     logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(message)s")
 
+    # 调用pandas_udaf函数
     pandas_udaf()

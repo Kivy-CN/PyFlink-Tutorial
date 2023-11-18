@@ -24,9 +24,11 @@ from pyflink.table.expressions import col
 
 
 def process_json_data():
+    # 创建一个TableEnvironment实例，并设置为流式处理模式
     t_env = TableEnvironment.create(EnvironmentSettings.in_streaming_mode())
 
     # define the source
+    # 定义源数据
     table = t_env.from_elements(
         elements=[
             (1, '{"name": "Flink", "tel": 123, "addr": {"country": "Germany", "city": "Berlin"}}'),
@@ -37,6 +39,7 @@ def process_json_data():
         schema=['id', 'data'])
 
     # define the sink
+    # 定义sink
     t_env.create_temporary_table(
         'sink',
         TableDescriptor.for_connector('print')
@@ -46,17 +49,26 @@ def process_json_data():
                                .build())
                        .build())
 
+    # 选择id和data.addr.country字段
     table = table.select(col('id'), col('data').json_value('$.addr.country', DataTypes.STRING()))
 
     # execute
+    # 执行
     table.execute_insert('sink') \
          .wait()
     # remove .wait if submitting to a remote cluster, refer to
     # https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/python/faq/#wait-for-jobs-to-finish-when-executing-jobs-in-mini-cluster
     # for more details
+    # 移除.wait()，如果提交到远程集群，参考https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/python/faq/#wait-for-jobs-to-finish-when-executing-jobs-in-mini-cluster
+    # 获取更多详情
+    # 执行
+    # table.execute_insert('sink').wait()
+    # 移除.wait()，如果提交到远程集群，参考https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/python/faq/#wait-for-jobs-to-finish-when-executing-jobs-in-mini-cluster
+    # 获取更多详情
 
 
 if __name__ == '__main__':
+    # 设置日志级别
     logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(message)s")
 
     process_json_data()

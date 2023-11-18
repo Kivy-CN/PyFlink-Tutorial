@@ -62,12 +62,17 @@ word_count_data = ["To be, or not to be,--that is the question:--",
                    "Be all my sins remember'd."]
 
 
+# 定义一个word_count函数，用于计算单词出现的次数
 def word_count(input_path, output_path):
+    # 创建一个TableEnvironment实例，并设置并行度为1
     t_env = TableEnvironment.create(EnvironmentSettings.in_streaming_mode())
     # write all the data to one file
+    # 设置并行度为1
     t_env.get_config().set("parallelism.default", "1")
 
     # define the source
+    # 定义源表
+    # 如果输入路径不为空，则创建一个临时表，用于读取输入文件
     if input_path is not None:
         t_env.create_temporary_table(
             'source',
@@ -79,6 +84,7 @@ def word_count(input_path, output_path):
                            .format('csv')
                            .build())
         tab = t_env.from_path('source')
+    # 否则，使用默认的输入数据集
     else:
         print("Executing word_count example with default input data set.")
         print("Use --input to specify file input.")
@@ -86,6 +92,8 @@ def word_count(input_path, output_path):
                                   DataTypes.ROW([DataTypes.FIELD('line', DataTypes.STRING())]))
 
     # define the sink
+    # 定义输出表
+    # 如果输出路径不为空，则创建一个临时表，用于写入结果
     if output_path is not None:
         t_env.create_temporary_table(
             'sink',
@@ -98,6 +106,7 @@ def word_count(input_path, output_path):
                            .format(FormatDescriptor.for_format('canal-json')
                                    .build())
                            .build())
+    # 否则，将结果打印到标准输出
     else:
         print("Printing result to stdout. Use --output to specify output path.")
         t_env.create_temporary_table(
@@ -109,12 +118,14 @@ def word_count(input_path, output_path):
                                    .build())
                            .build())
 
+    # 定义一个udtf函数，用于将行拆分成单词
     @udtf(result_types=[DataTypes.STRING()])
     def split(line: Row):
         for s in line[0].split():
             yield Row(s)
 
     # compute word count
+    # 计算单词出现的次数
     tab.flat_map(split).alias('word') \
        .group_by(col('word')) \
        .select(col('word'), lit(1).count) \
@@ -123,12 +134,17 @@ def word_count(input_path, output_path):
     # remove .wait if submitting to a remote cluster, refer to
     # https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/python/faq/#wait-for-jobs-to-finish-when-executing-jobs-in-mini-cluster
     # for more details
+    # 移除.wait，如果提交到远程集群，参考https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/python/faq/#wait-for-jobs-to-finish-when-executing-jobs-in-mini-cluster
+    # 获取更多详情
 
 
 if __name__ == '__main__':
+    # 设置日志输出格式
     logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(message)s")
 
+    # 创建一个参数解析器
     parser = argparse.ArgumentParser()
+    # 添加参数，用于指定输入文件和输出文件
     parser.add_argument(
         '--input',
         dest='input',
@@ -140,7 +156,9 @@ if __name__ == '__main__':
         required=False,
         help='Output file to write results to.')
 
+    # 解析参数
     argv = sys.argv[1:]
     known_args, _ = parser.parse_known_args(argv)
 
+    # 调用word_count函数，计算单词出现的次数
     word_count(known_args.input, known_args.output)

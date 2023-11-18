@@ -25,10 +25,13 @@ from pyflink.table.expressions import *
 from pyflink.table.udf import udtf, udf, udaf, AggregateFunction, TableAggregateFunction, udtaf
 
 
+# 定义基本操作函数
 def basic_operations():
+    # 创建一个TableEnvironment，并设置为流式模式
     t_env = TableEnvironment.create(EnvironmentSettings.in_streaming_mode())
 
     # define the source
+    # 定义源数据
     table = t_env.from_elements(
         elements=[
             (1, '{"name": "Flink", "tel": 123, "addr": {"country": "Germany", "city": "Berlin"}}'),
@@ -38,14 +41,17 @@ def basic_operations():
         ],
         schema=['id', 'data'])
 
+    # 定义右边表
     right_table = t_env.from_elements(elements=[(1, 18), (2, 30), (3, 25), (4, 10)],
                                       schema=['id', 'age'])
 
+    # 添加新列，并删除源列
     table = table.add_columns(
                     col('data').json_value('$.name', DataTypes.STRING()).alias('name'),
                     col('data').json_value('$.tel', DataTypes.STRING()).alias('tel'),
                     col('data').json_value('$.addr.country', DataTypes.STRING()).alias('country')) \
                  .drop_columns(col('data'))
+    # 执行操作，并打印结果
     table.execute().print()
     # +----+----------------------+--------------------------------+--------------------------------+--------------------------------+
     # | op |                   id |                           name |                            tel |                        country |
@@ -270,10 +276,13 @@ def sql_operations():
     # PythonCorrelate(invocation=[parse_data($1)], correlate=[table(parse_data(data))], select=[id,data,f0,f1,f2], rowType=[RecordType(BIGINT id, VARCHAR(2147483647) data, VARCHAR(2147483647) f0, INTEGER f1, VARCHAR(2147483647) f2)], joinType=[INNER])
     # +- TableSourceScan(table=[[*anonymous_python-input-format$10*]], fields=[id, data])
 
+# 定义列操作函数
 def column_operations():
+    # 创建TableEnvironment，并设置为流式模式
     t_env = TableEnvironment.create(EnvironmentSettings.in_streaming_mode())
 
     # define the source
+    # 定义源表
     table = t_env.from_elements(
         elements=[
             (1, '{"name": "Flink", "tel": 123, "addr": {"country": "Germany", "city": "Berlin"}}'),
@@ -284,11 +293,13 @@ def column_operations():
         schema=['id', 'data'])
 
     # add columns
+    # 添加列
     table = table.add_columns(
         col('data').json_value('$.name', DataTypes.STRING()).alias('name'),
         col('data').json_value('$.tel', DataTypes.STRING()).alias('tel'),
         col('data').json_value('$.addr.country', DataTypes.STRING()).alias('country'))
 
+    # 执行操作，并打印结果
     table.execute().print()
     # +----+----------------------+--------------------------------+--------------------------------+--------------------------------+--------------------------------+
     # | op |                   id |                           data |                           name |                            tel |                        country |
@@ -323,7 +334,7 @@ def column_operations():
     # | +I |                    4 |                        PyFlink |                             32 |                          China |
     # +----+----------------------+--------------------------------+--------------------------------+--------------------------------+
 
-    # replace columns
+   # replace columns
     table = table.add_or_replace_columns(
         concat(col('id').cast(DataTypes.STRING()), '_', col('name')).alias('id'))
     table.execute().print()
@@ -337,10 +348,13 @@ def column_operations():
     # +----+--------------------------------+--------------------------------+--------------------------------+--------------------------------+
 
 
+# 定义行操作函数
 def row_operations():
+    # 创建流式环境
     t_env = TableEnvironment.create(EnvironmentSettings.in_streaming_mode())
 
     # define the source
+    # 定义源数据
     table = t_env.from_elements(
         elements=[
             (1, '{"name": "Flink", "tel": 123, "addr": {"country": "Germany", "city": "Berlin"}}'),
@@ -351,12 +365,16 @@ def row_operations():
         schema=['id', 'data'])
 
     # map operation
+    # 定义映射操作
     @udf(result_type=DataTypes.ROW([DataTypes.FIELD("id", DataTypes.BIGINT()),
                                     DataTypes.FIELD("country", DataTypes.STRING())]))
     def extract_country(input_row: Row):
+        # 将json字符串转换为字典
         data = json.loads(input_row.data)
+        # 返回id和country字段
         return Row(input_row.id, data['addr']['country'])
 
+    # 执行映射操作，并打印结果
     table.map(extract_country) \
          .execute().print()
     # +----+----------------------+--------------------------------+
@@ -369,11 +387,15 @@ def row_operations():
     # +----+----------------------+--------------------------------+
 
     # flat_map operation
+   # 定义一个函数，用于提取城市信息，返回类型为BigInt和String
     @udtf(result_types=[DataTypes.BIGINT(), DataTypes.STRING()])
     def extract_city(input_row: Row):
+        # 将输入行转换为json格式
         data = json.loads(input_row.data)
+        # 返回输入行的id和addr.city
         yield input_row.id, data['addr']['city']
 
+    # 将表进行flat_map操作，提取城市信息，并执行，最后打印结果
     table.flat_map(extract_city) \
          .execute().print()
     # +----+----------------------+--------------------------------+
@@ -386,38 +408,48 @@ def row_operations():
     # +----+----------------------+--------------------------------+
 
     # aggregate operation
+    # 定义一个CountAndSumAggregateFunction类，继承自AggregateFunction
     class CountAndSumAggregateFunction(AggregateFunction):
 
+        # 定义get_value方法，返回一个Row对象，其中包含accumulator[0]和accumulator[1]
         def get_value(self, accumulator):
             return Row(accumulator[0], accumulator[1])
 
+        # 定义create_accumulator方法，返回一个Row对象，其中accumulator[0]和accumulator[1]都初始化为0
         def create_accumulator(self):
             return Row(0, 0)
 
+        # 定义accumulate方法，将accumulator[0]和accumulator[1]分别加1和input_row.tel的值
         def accumulate(self, accumulator, input_row):
             accumulator[0] += 1
             accumulator[1] += int(input_row.tel)
 
+        # 定义retract方法，将accumulator[0]和accumulator[1]分别减1和input_row.tel的值
         def retract(self, accumulator, input_row):
             accumulator[0] -= 1
             accumulator[1] -= int(input_row.tel)
 
+        # 定义merge方法，将accumulator[0]和accumulator[1]分别加上other_acc[0]和other_acc[1]
         def merge(self, accumulator, accumulators):
             for other_acc in accumulators:
                 accumulator[0] += other_acc[0]
                 accumulator[1] += other_acc[1]
 
+        # 定义get_accumulator_type方法，返回一个DataTypes.ROW对象，其中包含DataTypes.FIELD("cnt", DataTypes.BIGINT())和DataTypes.FIELD("sum", DataTypes.BIGINT())
         def get_accumulator_type(self):
             return DataTypes.ROW(
                 [DataTypes.FIELD("cnt", DataTypes.BIGINT()),
                  DataTypes.FIELD("sum", DataTypes.BIGINT())])
 
+        # 定义get_result_type方法，返回一个DataTypes.ROW对象，其中包含DataTypes.FIELD("cnt", DataTypes.BIGINT())和DataTypes.FIELD("sum", DataTypes.BIGINT())
         def get_result_type(self):
             return DataTypes.ROW(
                 [DataTypes.FIELD("cnt", DataTypes.BIGINT()),
                  DataTypes.FIELD("sum", DataTypes.BIGINT())])
 
+    # 定义一个count_sum变量，用于存储CountAndSumAggregateFunction类
     count_sum = udaf(CountAndSumAggregateFunction())
+    # 添加一个列，用于存储name，tel和country，并使用count_sum变量进行聚合操作
     table.add_columns(
             col('data').json_value('$.name', DataTypes.STRING()).alias('name'),
             col('data').json_value('$.tel', DataTypes.STRING()).alias('tel'),
@@ -434,16 +466,20 @@ def row_operations():
     # +----+--------------------------------+----------------------+----------------------+
 
     # flat_aggregate operation
+    # 定义一个Top2类，继承自TableAggregateFunction
     class Top2(TableAggregateFunction):
 
+        # 定义emit_value方法，返回一个Row对象，其中包含accumulator[0]
         def emit_value(self, accumulator):
             for v in accumulator:
                 if v:
                     yield Row(v)
 
+        # 定义create_accumulator方法，返回一个列表，其中accumulator[0]和accumulator[1]都初始化为None
         def create_accumulator(self):
             return [None, None]
 
+        # 定义accumulate方法，将accumulator[0]和accumulator[1]分别加1和input_row.tel的值
         def accumulate(self, accumulator, input_row):
             tel = int(input_row.tel)
             if accumulator[0] is None or tel > accumulator[0]:
@@ -452,14 +488,18 @@ def row_operations():
             elif accumulator[1] is None or tel > accumulator[1]:
                 accumulator[1] = tel
 
+        # 定义get_accumulator_type方法，返回一个DataTypes.ARRAY对象，其中包含DataTypes.BIGINT()
         def get_accumulator_type(self):
             return DataTypes.ARRAY(DataTypes.BIGINT())
 
+        # 定义get_result_type方法，返回一个DataTypes.ROW对象，其中包含DataTypes.FIELD("tel", DataTypes.BIGINT())
         def get_result_type(self):
             return DataTypes.ROW(
                 [DataTypes.FIELD("tel", DataTypes.BIGINT())])
 
+    # 定义一个top2变量，用于存储Top2类
     top2 = udtaf(Top2())
+    # 添加一个列，用于存储name，tel和country，并使用top2变量进行聚合操作
     table.add_columns(
             col('data').json_value('$.name', DataTypes.STRING()).alias('name'),
             col('data').json_value('$.tel', DataTypes.STRING()).alias('tel'),

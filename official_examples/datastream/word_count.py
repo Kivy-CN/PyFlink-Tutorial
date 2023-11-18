@@ -25,6 +25,7 @@ from pyflink.datastream.connectors.file_system import (FileSource, StreamFormat,
                                                        OutputFileConfig, RollingPolicy)
 
 
+# 定义一个函数word_count，用于计算单词计数
 word_count_data = ["To be, or not to be,--that is the question:--",
                    "Whether 'tis nobler in the mind to suffer",
                    "The slings and arrows of outrageous fortune",
@@ -63,35 +64,46 @@ word_count_data = ["To be, or not to be,--that is the question:--",
 
 
 def word_count(input_path, output_path):
+    # 获取当前环境
     env = StreamExecutionEnvironment.get_execution_environment()
+    # 设置运行模式为批处理模式
     env.set_runtime_mode(RuntimeExecutionMode.BATCH)
     # write all the data to one file
+    # 设置并行度为1
     env.set_parallelism(1)
 
     # define the source
+    # 定义源
+    # 如果输入路径不为空，则从源中获取数据
     if input_path is not None:
         ds = env.from_source(
             source=FileSource.for_record_stream_format(StreamFormat.text_line_format(),
                                                        input_path)
                              .process_static_file_set().build(),
+            # 设置水印策略为单调时间戳
             watermark_strategy=WatermarkStrategy.for_monotonous_timestamps(),
             source_name="file_source"
         )
     else:
         print("Executing word_count example with default input data set.")
         print("Use --input to specify file input.")
+        # 从默认数据集中获取数据
         ds = env.from_collection(word_count_data)
 
+    # 将每一行数据拆分成单词
     def split(line):
         yield from line.split()
 
     # compute word count
+    # 计算单词计数
     ds = ds.flat_map(split) \
            .map(lambda i: (i, 1), output_type=Types.TUPLE([Types.STRING(), Types.INT()])) \
            .key_by(lambda i: i[0]) \
            .reduce(lambda i, j: (i[0], i[1] + j[1]))
 
     # define the sink
+    # 定义输出
+    # 如果输出路径不为空，则将结果写入输出路径
     if output_path is not None:
         ds.sink_to(
             sink=FileSink.for_row_format(
@@ -110,13 +122,17 @@ def word_count(input_path, output_path):
         ds.print()
 
     # submit for execution
+    # 提交执行
     env.execute()
 
 
 if __name__ == '__main__':
+    # 设置日志输出格式
     logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(message)s")
 
+    # 创建参数解析器
     parser = argparse.ArgumentParser()
+    # 添加参数
     parser.add_argument(
         '--input',
         dest='input',
@@ -128,7 +144,9 @@ if __name__ == '__main__':
         required=False,
         help='Output file to write results to.')
 
+    # 解析参数
     argv = sys.argv[1:]
     known_args, _ = parser.parse_known_args(argv)
 
+    # 调用word_count函数
     word_count(known_args.input, known_args.output)
