@@ -1,9 +1,25 @@
+'''
+简单模拟识别信用卡诈骗
+生成3000个银行账户的10000条交易数据
+从中筛选出10分钟内的连续两次同账户交易
+然后再从中筛选出一次交易小于100而下一次交易大于1000的交易
+每一步的结果都生成csv文件
+依赖faker和pandas
+需要先 pip install faker pandas
+'''
+
+
 import csv
+# 导入faker模块
 from faker import Faker
+# 导入random模块
 import random
+# 导入datetime模块
 import datetime
+# 导入pandas模块
 import pandas as pd
 
+# 实例化faker对象
 fake = Faker()
 
 # 生成账号和姓名
