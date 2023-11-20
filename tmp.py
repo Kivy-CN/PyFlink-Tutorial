@@ -1,4 +1,4 @@
-from pyflink.common.functions import MapFunction
+from pyflink.datastream.functions import MapFunction
 from pyflink.common.typeinfo import Types
 from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.datastream.connectors import FlinkKafkaConsumer
