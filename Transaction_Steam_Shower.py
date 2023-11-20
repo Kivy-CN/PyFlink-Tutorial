@@ -7,9 +7,10 @@ current_dir_path = os.path.dirname(current_file_path)
 os.chdir(current_dir_path)
 output_path = current_dir_path
 
-
-import re
 import argparse
+import csv
+import re
+import io
 import logging
 import sys
 import numpy as np 
@@ -23,28 +24,19 @@ from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.datastream.connectors.kafka import FlinkKafkaProducer, FlinkKafkaConsumer
 
 def read_from_kafka():
-    # Create a Flink execution environment
     env = StreamExecutionEnvironment.get_execution_environment()    
-
-    # Add the Flink SQL Kafka connector jar file to the classpath
     env.add_jars("file:///home/hadoop/Desktop/PyFlink-Tutorial/flink-sql-connector-kafka-3.1-SNAPSHOT.jar")
-
-    # Print a message to indicate that data reading from Kafka has started
     print("start reading data from kafka")
-
-    # Create a Kafka consumer
     kafka_consumer = FlinkKafkaConsumer(
         topics='transaction', # The topic to consume messages from
         deserialization_schema= SimpleStringSchema('UTF-8'), # The schema to deserialize messages
         properties={'bootstrap.servers': 'localhost:9092', 'group.id': 'my-group'} # The Kafka broker address and consumer group ID
     )
-
-    # Start reading messages from the earliest offset
     kafka_consumer.set_start_from_earliest()
+    stream = env.add_source(kafka_consumer)
 
-    # Add the Kafka consumer as a source to the Flink execution environment and print the messages to the console
-    env.add_source(kafka_consumer).print()
-    # submit for execution
+    parsed_stream = stream.map(lambda x: next(csv.reader(io.StringIO(x))))
+    parsed_stream.print()
     env.execute()
 
 if __name__ == '__main__':
