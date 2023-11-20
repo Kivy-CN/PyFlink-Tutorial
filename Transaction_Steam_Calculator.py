@@ -23,9 +23,18 @@ from pyflink.common import Types, SimpleStringSchema
 from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.datastream.connectors.kafka import FlinkKafkaProducer, FlinkKafkaConsumer
 
+def parse_csv_old(x):
+    result = csv.reader(io.StringIO(x))    
+    return next(result)
+
 def parse_csv(x):
     result = csv.reader(io.StringIO(x))
-    return next(result)
+    first_element = next(result)
+    first_element = first_element.decode('utf-8')
+    first_element = first_element.replace("[b'", "")
+    first_element = first_element.replace("\\n']", "")
+    return [first_element] + list(result)
+
 
 def read_from_kafka():
     env = StreamExecutionEnvironment.get_execution_environment()    
