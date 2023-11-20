@@ -49,10 +49,7 @@ def count_rows(data):
 def find_max_min(data):
     transpose_data = list(zip(*data))
     col_4 = transpose_data[3]
-    max_val = max(col_4)
-    min_val = min(col_4)
-    print(f"Max value in column 4: {max_val}")
-    print(f"Min value in column 4: {min_val}")
+    print(f"column 4 is: {col_4}")
     return data
 
 def read_from_kafka():
