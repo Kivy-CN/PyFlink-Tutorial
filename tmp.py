@@ -4,9 +4,12 @@ from datetime import datetime, timedelta
 from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.datastream.connectors import FlinkKafkaConsumer
 from pyflink.datastream.functions import ProcessFunction
+from pyflink.common.serialization import SimpleStringSchema
 
 def read_from_kafka():
     env = StreamExecutionEnvironment.get_execution_environment()
+    # Add the Flink SQL Kafka connector jar file to the classpath
+    env.add_jars("file:///home/hadoop/Desktop/PyFlink-Tutorial/flink-sql-connector-kafka-3.1-SNAPSHOT.jar")
     kafka_consumer = FlinkKafkaConsumer(
         topics='data',
         deserialization_schema=SimpleStringSchema('UTF-8'),
