@@ -65,9 +65,6 @@ def find_max_min(data):
     print(f"Min value in column 4: {min_val}")
     return data
 
-stream.map(find_max)
-
-
 def read_from_kafka():
     env = StreamExecutionEnvironment.get_execution_environment()    
     env.add_jars("file:///home/hadoop/Desktop/PyFlink-Tutorial/flink-sql-connector-kafka-3.1-SNAPSHOT.jar")
