@@ -23,6 +23,13 @@ from pyflink.common import Types, SimpleStringSchema
 from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.datastream.connectors.kafka import FlinkKafkaProducer, FlinkKafkaConsumer
 
+def parse_csv(x):
+    result = csv.reader(io.StringIO(x))
+    for items in result:
+        # print(items)
+        pass
+    return next(result)
+
 def read_from_kafka():
     env = StreamExecutionEnvironment.get_execution_environment()    
     env.add_jars("file:///home/hadoop/Desktop/PyFlink-Tutorial/flink-sql-connector-kafka-3.1-SNAPSHOT.jar")
@@ -34,8 +41,8 @@ def read_from_kafka():
     )
     kafka_consumer.set_start_from_earliest()
     stream = env.add_source(kafka_consumer)
-
-    parsed_stream = stream.map(lambda x: next(csv.reader(io.StringIO(x))))
+    # parsed_stream = stream.map(lambda x: next(csv.reader(io.StringIO(x))))
+    parsed_stream = stream.map(parse_csv)
     parsed_stream.print()
     env.execute()
 

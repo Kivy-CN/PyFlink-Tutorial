@@ -28,7 +28,7 @@ def parse_csv(x):
     for items in result:
         # print(items)
         pass
-    return next(result)[2:-1]
+    return next(result)
 
 def read_from_kafka():
     env = StreamExecutionEnvironment.get_execution_environment()    
