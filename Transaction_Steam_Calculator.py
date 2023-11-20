@@ -28,12 +28,11 @@ def parse_csv_old(x):
     return next(result)
 
 def parse_csv(x):
+    x = x.decode('utf-8')
+    x = x.replace("[b'", "")
+    x = x.replace("\\n']", "")
     result = csv.reader(io.StringIO(x))
-    first_element = next(result)
-    first_element = first_element.decode('utf-8')
-    first_element = first_element.replace("[b'", "")
-    first_element = first_element.replace("\\n']", "")
-    return [first_element] + list(result)
+    return next(result)
 
 
 def read_from_kafka():
