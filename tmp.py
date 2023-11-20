@@ -3,6 +3,7 @@ import csv
 from datetime import datetime, timedelta
 from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.datastream.connectors import FlinkKafkaConsumer
+from pyflink.datastream.functions import ProcessFunction
 
 def read_from_kafka():
     env = StreamExecutionEnvironment.get_execution_environment()
