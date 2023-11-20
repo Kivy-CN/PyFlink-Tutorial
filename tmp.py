@@ -30,12 +30,17 @@ def read_from_kafka():
         properties={'bootstrap.servers': 'localhost:9092', 'group.id': 'my-group'} 
     )
     kafka_consumer.set_start_from_earliest()    
-    # data_stream =  env.add_source(kafka_consumer).map(lambda x: ' '.join(re.findall(r'\d+', x))).filter(lambda x: any([Year_Begin <= int(i) <= Year_End for i in x.split()])).map(lambda x:  [i for i in x.split() if Year_Begin <= int(i) <= Year_End][0])
-    data_stream =  env.add_source(kafka_consumer)
-    # data_stream.print()
+    data_stream = env.add_source(kafka_consumer)
+    data_stream.map(lambda x: io.StringIO(x)) \
+        .map(lambda x: csv.reader(x, delimiter='\t')) \
+        .map(lambda x: [float(x[1])]) \
+        .filter(lambda x: x[0] > 0) \
+        .map(lambda x: ('positive', 1) if x[0] > 0 else ('negative', 1)) \
+        .key_by(lambda x: x[0]) \
+        .sum(1) \
+        .print()
     current_time = time.strftime("%Y%m%d-%H%M%S")
-    table = t_env.from_data_stream(data_stream,schema=['CITATIONS','LATITUDE','LONGITUDE'])
-    # table.print_schema()
+    table = t_env.from_data_stream(data_stream)
     print(table.explain())
     table_result = table.execute()
     with table_result.collect() as results:
