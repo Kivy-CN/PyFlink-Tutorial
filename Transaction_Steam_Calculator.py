@@ -47,7 +47,7 @@ def count_rows(data):
     return data 
 
 def find_max_min(data):
-    transpose_data = list(zip(*data))
+    # transpose_data = list(zip(*data))
     col_4 = transpose_data[3]
     print(f"column 4 is: {col_4}")
     return data
