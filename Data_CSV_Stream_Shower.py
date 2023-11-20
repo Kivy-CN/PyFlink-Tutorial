@@ -7,20 +7,22 @@ current_dir_path = os.path.dirname(current_file_path)
 os.chdir(current_dir_path)
 output_path = current_dir_path
 
-
-import re
 import argparse
 import logging
+import re
 import sys
-import numpy as np 
+
+import numpy as np
 import pandas as pd
-from pyflink.table import StreamTableEnvironment
-from pyflink.common import WatermarkStrategy, Encoder, Types
-from pyflink.datastream import StreamExecutionEnvironment, RuntimeExecutionMode
-from pyflink.datastream.connectors.file_system import FileSource, StreamFormat, FileSink, OutputFileConfig, RollingPolicy
-from pyflink.common import Types, SimpleStringSchema
+
+from pyflink.common import Types
+from pyflink.common.serialization import SimpleStringSchema
 from pyflink.datastream import StreamExecutionEnvironment
-from pyflink.datastream.connectors.kafka import FlinkKafkaProducer, FlinkKafkaConsumer
+from pyflink.datastream.connectors.file_system import FileSink, FileSource, OutputFileConfig, RollingPolicy
+from pyflink.datastream.connectors.kafka import FlinkKafkaConsumer, FlinkKafkaProducer
+from pyflink.datastream.formats.csv import CsvRowDeserializationSchema, CsvRowSerializationSchema
+from pyflink.datastream.state import ValueStateDescriptor
+from pyflink.table import StreamTableEnvironment
 
 def split(line):
     yield from line.split()
