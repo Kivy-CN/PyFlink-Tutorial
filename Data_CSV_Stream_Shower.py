@@ -48,7 +48,7 @@ def read_from_kafka():
     kafka_consumer.set_start_from_earliest()
 
     # Add the Kafka consumer as a source to the Flink execution environment and print the messages to the console
-    env.add_source(kafka_consumer)
+    env.add_source(kafka_consumer).print()
     # submit for execution
     env.execute()
 
