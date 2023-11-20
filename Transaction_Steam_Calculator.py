@@ -29,9 +29,16 @@ def read_from_kafka():
     env = StreamExecutionEnvironment.get_execution_environment()
     env.add_jars("file:///home/hadoop/Desktop/PyFlink-Tutorial/flink-sql-connector-kafka-3.1-SNAPSHOT.jar")
     print("start reading data from kafka")
+    type_info = Types.ROW([
+                Types.STRING(),
+                Types.STRING(),
+                Types.STRING(),
+                Types.STRING(),
+                Types.STRING(),
+                Types.STRING()])
     kafka_consumer = FlinkKafkaConsumer(
         topics='transaction',
-        deserialization_schema= CsvRowDeserializationSchema.Builder()
+        deserialization_schema= CsvRowDeserializationSchema.Builder(type_info)
             .set_field_delimiter(',')
             .set_quote_character(None)
             .set_allow_comments(False)
