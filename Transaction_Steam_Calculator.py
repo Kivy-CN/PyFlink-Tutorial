@@ -35,7 +35,7 @@ def read_from_kafka():
     kafka_consumer.set_start_from_earliest()
     stream = env.add_source(kafka_consumer)
     # parsed_stream = stream.map(lambda x: next(csv.reader(io.StringIO(x))))
-    parsed_stream = stream.map(lambda x: next(csv.reader(io.StringIO(x.strip("b'").strip("\\n'")))))
+    parsed_stream = stream.map(lambda x: next(csv.reader(io.StringIO(x.strip("b'").strip("\n'")))))
     parsed_stream.print()
     env.execute()
 
