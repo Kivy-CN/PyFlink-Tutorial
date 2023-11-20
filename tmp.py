@@ -21,7 +21,10 @@ kafka_consumer = FlinkKafkaConsumer(
 
 kafka_consumer.set_start_from_earliest()
 data_stream = env.add_source(kafka_consumer)
-keyed_stream = data_stream.key_by(lambda x: x[0])
-keyed_stream.process(MyKeyedProcessFunction()).print()
+data_stream.print()
+# keyed_stream = data_stream.key_by(lambda x: x[0])
+# keyed_stream.process(MyKeyedProcessFunction()).print()
 
 env.execute()
+
+
