@@ -4,6 +4,7 @@ from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.datastream.connectors import FlinkKafkaConsumer
 from pyflink.datastream.functions import KeyedProcessFunction
 from pyflink.datastream.state import ValueStateDescriptor
+from pyflink.common.serialization import SerializationSchema
 
 class MyKeyedProcessFunction(KeyedProcessFunction):
     def process_element(self, value, ctx: 'KeyedProcessFunction.Context', out: 'Collector'):
