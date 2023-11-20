@@ -26,8 +26,9 @@ from pyflink.datastream.connectors.kafka import FlinkKafkaProducer, FlinkKafkaCo
 def parse_csv(x):
     result = csv.reader(io.StringIO(x))
     for items in result:
-        print(items)
-    return next(result)
+        # print(items)
+        pass
+    return next(result)[2:-1]
 
 def read_from_kafka():
     env = StreamExecutionEnvironment.get_execution_environment()    
