@@ -59,7 +59,7 @@ def read_from_kafka():
     stream = env.add_source(kafka_consumer)
     parsed_stream = stream.map(parse_csv)
     # parsed_stream.print()
-    count_stream = stream.map(count_rows)
+    count_stream = parsed_stream.map(count_rows)
     count_stream.print()
     env.execute()
 
