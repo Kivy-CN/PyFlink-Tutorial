@@ -39,7 +39,8 @@ def read_from_kafka():
     # 4.43847E+15	Colin Thomas	470402943	4150	out	2022/12/30 0:00
 
     # 定义类型信息，类型为STRING和INT等等
-    type_info = Types.ROW([Types.INT(), Types.STRING(),Types.INT(),Types.INT(),Types.STRING(),Types.STRING()])
+    # type_info = Types.ROW([Tpyes.bytes(),Types.INT(), Types.STRING(),Types.INT(),Types.INT(),Types.STRING(),Types.STRING()])
+    type_info = Types.ROW([Tpyes.bytes()])
     # 创建反序列化schema，类型为INT和STRING
     deserialization_schema = CsvRowDeserializationSchema.Builder(type_info).build()
 
