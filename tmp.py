@@ -29,12 +29,12 @@ def read_from_kafka():
         deserialization_schema= SimpleStringSchema('UTF-8'),
         properties={'bootstrap.servers': 'localhost:9092', 'group.id': 'my-group'} 
     )
-    kafka_consumer.set_start_from_earliest()
-    
-    data_stream =  env.add_source(kafka_consumer).map(lambda x: ' '.join(re.findall(r'\d+', x))).filter(lambda x: any([Year_Begin <= int(i) <= Year_End for i in x.split()])).map(lambda x:  [i for i in x.split() if Year_Begin <= int(i) <= Year_End][0])
+    kafka_consumer.set_start_from_earliest()    
+    # data_stream =  env.add_source(kafka_consumer).map(lambda x: ' '.join(re.findall(r'\d+', x))).filter(lambda x: any([Year_Begin <= int(i) <= Year_End for i in x.split()])).map(lambda x:  [i for i in x.split() if Year_Begin <= int(i) <= Year_End][0])
+    data_stream =  env.add_source(kafka_consumer)
     # data_stream.print()
     current_time = time.strftime("%Y%m%d-%H%M%S")
-    table = t_env.from_data_stream(data_stream)
+    table = t_env.from_data_stream(data_stream,schema=['CITATIONS','LATITUDE','LONGITUDE'])
     # table.print_schema()
     print(table.explain())
     table_result = table.execute()
