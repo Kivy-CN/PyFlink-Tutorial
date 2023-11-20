@@ -47,20 +47,8 @@ def count_rows(data):
     return data 
 
 def find_max_min(data):
-    parsed_data = []
-    for row in data:
-        parsed_row = []
-        for element in row:
-            try:
-                parsed_element = int(element)
-            except ValueError:
-                parsed_element = element
-            parsed_row.append(parsed_element)
-        parsed_data.append(parsed_row)
-    parsed_data = np.array(parsed_data)
-    col_4 = parsed_data[:, 3]
-    max_val = np.max(col_4)
-    min_val = np.min(col_4)
+    transpose_a = list(zip(*a))
+    col_4 = transpose_a[3]
     print(f"Max value in column 4: {max_val}")
     print(f"Min value in column 4: {min_val}")
     return data
