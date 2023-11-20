@@ -46,7 +46,7 @@ def count_rows(data):
     print(f"Received {row_count} rows of {type_count} data.")
     return data 
 
-def find_max_min(data):
+def check_data(data):
     # transpose_data = list(zip(*data))
     # col_target = transpose_data[3]
     col_target = [row[3] for row in data] 
@@ -68,7 +68,7 @@ def read_from_kafka():
     # parsed_stream.print()
     count_stream = parsed_stream.map(count_rows)
     # count_stream.print()
-    max_min_stream = count_stream.map(find_max_min)
+    max_min_stream = count_stream.map(check_data)
     max_min_stream.print()
     env.execute()
 
