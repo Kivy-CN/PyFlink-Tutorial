@@ -16,7 +16,7 @@ env.add_jars("file:///home/hadoop/Desktop/PyFlink-Tutorial/flink-sql-connector-k
 
 kafka_consumer = FlinkKafkaConsumer(
     topics='data',
-    deserialization_schema=SerializationSchema[String],
+    deserialization_schema=SerializationSchema(Types.STRING()),
     properties={'bootstrap.servers': 'localhost:9092', 'group.id': 'my-group'}
 )
 data_stream = env.add_source(kafka_consumer)
