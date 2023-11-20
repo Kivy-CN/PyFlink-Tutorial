@@ -23,17 +23,20 @@ from pyflink.common import Types, SimpleStringSchema
 from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.datastream.connectors.kafka import FlinkKafkaProducer, FlinkKafkaConsumer
 
-def parse_csv_old(x):
-    result = csv.reader(io.StringIO(x))    
-    return next(result)
-
 def parse_csv(x):
-    x = x.replace("[b'", "")
-    x = x.replace("\\n']", "")
     result = csv.reader(io.StringIO(x))
-    return next(result)
-
-
+    parsed_result = []
+    for item in result:
+        parsed_item = []
+        for element in item:
+            try:
+                parsed_element = float(element)
+            except ValueError:
+                parsed_element = element
+            parsed_item.append(parsed_element)
+        parsed_result.append(parsed_item)
+    return parsed_result
+    
 def read_from_kafka():
     env = StreamExecutionEnvironment.get_execution_environment()    
     env.add_jars("file:///home/hadoop/Desktop/PyFlink-Tutorial/flink-sql-connector-kafka-3.1-SNAPSHOT.jar")
