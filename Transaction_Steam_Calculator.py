@@ -28,7 +28,6 @@ def parse_csv_old(x):
     return next(result)
 
 def parse_csv(x):
-    x = x.decode('utf-8')
     x = x.replace("[b'", "")
     x = x.replace("\\n']", "")
     result = csv.reader(io.StringIO(x))
