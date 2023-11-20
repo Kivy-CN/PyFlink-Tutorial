@@ -46,6 +46,15 @@ def count_rows(data):
     print(f"Received {row_count} rows of {type_count} data.")
     return data 
 
+def find_max_min(data):
+    data = np.array(data)
+    col_4 = data[:, 3]
+    max_val = np.max(col_4)
+    min_val = np.min(col_4)
+    print(f"Max value in column 4: {max_val}")
+    print(f"Min value in column 4: {min_val}")
+    return data
+
 def read_from_kafka():
     env = StreamExecutionEnvironment.get_execution_environment()    
     env.add_jars("file:///home/hadoop/Desktop/PyFlink-Tutorial/flink-sql-connector-kafka-3.1-SNAPSHOT.jar")
@@ -60,7 +69,9 @@ def read_from_kafka():
     parsed_stream = stream.map(parse_csv)
     # parsed_stream.print()
     count_stream = parsed_stream.map(count_rows)
-    count_stream.print()
+    # count_stream.print()
+    max_min_stream = count_stream.map(find_max_min)
+    max_min_stream.print()
     env.execute()
 
 if __name__ == '__main__':
