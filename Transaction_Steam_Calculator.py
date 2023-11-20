@@ -24,7 +24,8 @@ from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.datastream.connectors.kafka import FlinkKafkaProducer, FlinkKafkaConsumer
 
 def parse_csv(x):
-    return next(csv.reader(io.StringIO(x)))
+    result = csv.reader(io.StringIO(x))
+    return next(result)
 
 def read_from_kafka():
     env = StreamExecutionEnvironment.get_execution_environment()    
