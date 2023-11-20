@@ -33,7 +33,7 @@ def parse_csv(x):
         parsed_item = []
         for element in item:
             try:
-                parsed_element = float(element)
+                parsed_element = int(element)
             except ValueError:
                 parsed_element = element
             parsed_item.append(parsed_element)
