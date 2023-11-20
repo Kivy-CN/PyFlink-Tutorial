@@ -1,42 +1,25 @@
-import io
-import csv
-from datetime import datetime, timedelta
+from pyflink.common.functions import MapFunction
+from pyflink.common.typeinfo import Types
 from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.datastream.connectors import FlinkKafkaConsumer
-from pyflink.datastream.functions import ProcessFunction
-from pyflink.common.serialization import SimpleStringSchema
+from pyflink.datastream.functions import KeyedProcessFunction
+from pyflink.datastream.state import ValueStateDescriptor
 
-def read_from_kafka():
-    env = StreamExecutionEnvironment.get_execution_environment()
-    # Add the Flink SQL Kafka connector jar file to the classpath
-    env.add_jars("file:///home/hadoop/Desktop/PyFlink-Tutorial/flink-sql-connector-kafka-3.1-SNAPSHOT.jar")
-    kafka_consumer = FlinkKafkaConsumer(
-        topics='data',
-        deserialization_schema=SimpleStringSchema('UTF-8'),
-        properties={'bootstrap.servers': 'localhost:9092', 'group.id': 'my-group'}
-    )
-    data_stream = env.add_source(kafka_consumer)
-    data_stream.map(lambda x: io.StringIO(x)) \
-        .map(lambda x: csv.reader(x, delimiter='\t')) \
-        .map(lambda x: (x[2], datetime.strptime(x[5], '%Y/%m/%d %H:%M'))) \
-        .key_by(lambda x: x[0]) \
-        .process(MyProcessFunction()) \
-        .print()
+class MyKeyedProcessFunction(KeyedProcessFunction):
+    def process_element(self, value, ctx: 'KeyedProcessFunction.Context', out: 'Collector'):
+        out.collect(value)
 
-    env.execute()
+env = StreamExecutionEnvironment.get_execution_environment()
+# Add the Flink SQL Kafka connector jar file to the classpath
+env.add_jars("file:///home/hadoop/Desktop/PyFlink-Tutorial/flink-sql-connector-kafka-3.1-SNAPSHOT.jar")
 
-class MyProcessFunction(ProcessFunction):
-    def __init__(self):
-        self.state = None
+kafka_consumer = FlinkKafkaConsumer(
+    topics='data',
+    deserialization_schema=SerializationSchema[String],
+    properties={'bootstrap.servers': 'localhost:9092', 'group.id': 'my-group'}
+)
+data_stream = env.add_source(kafka_consumer)
+keyed_stream = data_stream.key_by(lambda x: x[0])
+keyed_stream.process(MyKeyedProcessFunction()).print()
 
-    def process_element(self, value, ctx: 'ProcessFunction.Context'):
-        if self.state is None:
-            self.state = value
-        else:
-            if value[1] - self.state[1] < timedelta(minutes=10):
-                ctx.output('output_tag', self.state[0])
-                ctx.output('output_tag', value[0])
-            self.state = value
-
-if __name__ == '__main__':
-    read_from_kafka()
+env.execute()
