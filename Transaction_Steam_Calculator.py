@@ -23,8 +23,6 @@ from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.datastream.connectors.kafka import FlinkKafkaProducer, FlinkKafkaConsumer
 
 def read_from_kafka():
-    Year_Begin =1999
-    Year_End = 2023
     # Create a Flink execution environment
     env = StreamExecutionEnvironment.get_execution_environment()    
 
