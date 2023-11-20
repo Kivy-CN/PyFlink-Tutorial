@@ -31,7 +31,7 @@ def read_from_kafka():
     print("start reading data from kafka")
     kafka_consumer = FlinkKafkaConsumer(
         topics='transaction',
-        deserialization_schema= CsvRowDeserializationSchema.builder()
+        deserialization_schema= CsvRowDeserializationSchema.Builder()
             .set_field_delimiter(',')
             .set_quote_character(None)
             .set_allow_comments(False)
