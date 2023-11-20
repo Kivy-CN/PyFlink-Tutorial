@@ -1,54 +1,38 @@
-import re
-import argparse
-import logging
-import sys
-import time
-from io import StringIO
-import numpy as np 
-import pandas as pd
-from pyflink.table import StreamTableEnvironment
-from pyflink.common import WatermarkStrategy, Encoder, Types
-from pyflink.datastream import StreamExecutionEnvironment, RuntimeExecutionMode
-from pyflink.datastream.connectors.file_system import FileSource, StreamFormat, FileSink, OutputFileConfig, RollingPolicy
-from pyflink.common import Types, SimpleStringSchema
+import io
+import csv
+from datetime import datetime, timedelta
 from pyflink.datastream import StreamExecutionEnvironment
-from pyflink.datastream.connectors.kafka import FlinkKafkaProducer, FlinkKafkaConsumer
-
-def split(line):
-    yield from line.split()
+from pyflink.datastream.connectors import FlinkKafkaConsumer
 
 def read_from_kafka():
-    Year_Begin =1900
-    Year_End = 2023
-    env = StreamExecutionEnvironment.get_execution_environment()    
-    t_env = StreamTableEnvironment.create(stream_execution_environment=env)
-    env.add_jars("file:///home/hadoop/Desktop/PyFlink-Tutorial/flink-sql-connector-kafka-3.1-SNAPSHOT.jar")
-    print("start reading data from kafka")
+    env = StreamExecutionEnvironment.get_execution_environment()
     kafka_consumer = FlinkKafkaConsumer(
-        topics='data', 
-        deserialization_schema= SimpleStringSchema('UTF-8'),
-        properties={'bootstrap.servers': 'localhost:9092', 'group.id': 'my-group'} 
+        topics='data',
+        deserialization_schema=SimpleStringSchema('UTF-8'),
+        properties={'bootstrap.servers': 'localhost:9092', 'group.id': 'my-group'}
     )
-    kafka_consumer.set_start_from_earliest()    
     data_stream = env.add_source(kafka_consumer)
     data_stream.map(lambda x: io.StringIO(x)) \
         .map(lambda x: csv.reader(x, delimiter='\t')) \
-        .map(lambda x: [float(x[1])]) \
-        .filter(lambda x: x[0] > 0) \
-        .map(lambda x: ('positive', 1) if x[0] > 0 else ('negative', 1)) \
+        .map(lambda x: (x[2], datetime.strptime(x[5], '%Y/%m/%d %H:%M'))) \
         .key_by(lambda x: x[0]) \
-        .sum(1) \
+        .process(MyProcessFunction()) \
         .print()
-    current_time = time.strftime("%Y%m%d-%H%M%S")
-    table = t_env.from_data_stream(data_stream)
-    print(table.explain())
-    table_result = table.execute()
-    with table_result.collect() as results:
-        for row in results:
-            print(row)
-    print("table end reading data from kafka")
+
     env.execute()
-    print("data stream end reading data from kafka")
+
+class MyProcessFunction(ProcessFunction):
+    def __init__(self):
+        self.state = None
+
+    def process_element(self, value, ctx: 'ProcessFunction.Context'):
+        if self.state is None:
+            self.state = value
+        else:
+            if value[1] - self.state[1] < timedelta(minutes=10):
+                ctx.output('output_tag', self.state[0])
+                ctx.output('output_tag', value[0])
+            self.state = value
 
 if __name__ == '__main__':
     read_from_kafka()
