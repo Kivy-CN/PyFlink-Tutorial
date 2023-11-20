@@ -48,7 +48,7 @@ def read_from_kafka():
     kafka_consumer.set_start_from_earliest()
 
     # Add the Kafka consumer as a source to the Flink execution environment and print the messages to the console
-    env.add_source(kafka_consumer).map(lambda x: ' '.join(re.findall(r'\d+', x))).filter(lambda x: any([Year_Begin <= int(i) <= Year_End for i in x.split()])).map(lambda x:  [i for i in x.split() if Year_Begin <= int(i) <= Year_End][0]).print()
+    env.add_source(kafka_consumer)
     # submit for execution
     env.execute()
 
