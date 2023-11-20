@@ -47,7 +47,6 @@ def count_rows(data):
     return data 
 
 def find_max_min(data):
-    data = np.array(data)
     col_4 = data[:, 3]
     max_val = np.max(col_4)
     min_val = np.min(col_4)
