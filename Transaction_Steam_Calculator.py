@@ -42,8 +42,9 @@ def parse_csv(x):
 
 def count_rows(data):
     row_count = len(data)
-    print(f"Received {row_count} rows of data.")
-    return data
+    type_count = type(data)
+    print(f"Received {row_count} rows of {type_count} data.")
+    return data 
 
 def read_from_kafka():
     env = StreamExecutionEnvironment.get_execution_environment()    
@@ -57,7 +58,7 @@ def read_from_kafka():
     kafka_consumer.set_start_from_earliest()
     stream = env.add_source(kafka_consumer)
     parsed_stream = stream.map(parse_csv)
-    parsed_stream.print()
+    # parsed_stream.print()
     count_stream = stream.map(count_rows)
     count_stream.print()
     env.execute()
