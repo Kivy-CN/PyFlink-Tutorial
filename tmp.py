@@ -4,7 +4,7 @@ from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.datastream.connectors import FlinkKafkaConsumer
 from pyflink.datastream.functions import KeyedProcessFunction
 from pyflink.datastream.state import ValueStateDescriptor
-from pyflink.common.serialization import SerializationSchema
+from pyflink.common.serialization import SimpleStringSchema
 
 class MyKeyedProcessFunction(KeyedProcessFunction):
     def process_element(self, value, ctx: 'KeyedProcessFunction.Context', out: 'Collector'):
@@ -16,7 +16,7 @@ env.add_jars("file:///home/hadoop/Desktop/PyFlink-Tutorial/flink-sql-connector-k
 
 kafka_consumer = FlinkKafkaConsumer(
     topics='data',
-    deserialization_schema=SerializationSchema(Types.STRING()),
+    deserialization_schema=SimpleStringSchema(),
     properties={'bootstrap.servers': 'localhost:9092', 'group.id': 'my-group'}
 )
 data_stream = env.add_source(kafka_consumer)
