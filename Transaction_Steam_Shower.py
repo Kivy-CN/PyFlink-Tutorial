@@ -7,24 +7,24 @@ current_dir_path = os.path.dirname(current_file_path)
 os.chdir(current_dir_path)
 output_path = current_dir_path
 
-
-import re
 import argparse
 import logging
+import re
 import sys
-import numpy as np 
+
+import numpy as np
 import pandas as pd
-from pyflink.table import StreamTableEnvironment
-from pyflink.common import WatermarkStrategy, Encoder, Types
-from pyflink.datastream import StreamExecutionEnvironment, RuntimeExecutionMode
-from pyflink.datastream.connectors.file_system import FileSource, StreamFormat, FileSink, OutputFileConfig, RollingPolicy
-from pyflink.common import Types, SimpleStringSchema
+
+from pyflink.common import Types
+from pyflink.common.serialization import SimpleStringSchema
 from pyflink.datastream import StreamExecutionEnvironment
-from pyflink.datastream.connectors.kafka import FlinkKafkaProducer, FlinkKafkaConsumer
+from pyflink.datastream.connectors.file_system import FileSink, FileSource, OutputFileConfig, RollingPolicy
+from pyflink.datastream.connectors.kafka import FlinkKafkaConsumer, FlinkKafkaProducer
+from pyflink.datastream.formats.csv import CsvRowDeserializationSchema, CsvRowSerializationSchema
+from pyflink.datastream.state import ValueStateDescriptor
+from pyflink.table import StreamTableEnvironment
 
 def read_from_kafka():
-    Year_Begin =1999
-    Year_End = 2023
     # Create a Flink execution environment
     env = StreamExecutionEnvironment.get_execution_environment()    
 
@@ -34,10 +34,20 @@ def read_from_kafka():
     # Print a message to indicate that data reading from Kafka has started
     print("start reading data from kafka")
 
+    # Credit Card Number	Name	ID Number	Amount	Direction	Transaction Time
+    # 4.59084E+15	Anne Jordan	86112888	6954	out	2022/12/30 0:00
+    # 4.43847E+15	Colin Thomas	470402943	4150	out	2022/12/30 0:00
+
+    # 定义类型信息，类型为STRING和INT等等
+    type_info = Types.ROW([Types.INT(), Types.STRING(),Types.INT(),Types.INT(),Types.STRING(),Types.STRING()])
+    # 创建反序列化schema，类型为INT和STRING
+    deserialization_schema = CsvRowDeserializationSchema.Builder(type_info).build()
+
+
     # Create a Kafka consumer
     kafka_consumer = FlinkKafkaConsumer(
-        topics='transaction', # The topic to consume messages from
-        deserialization_schema= SimpleStringSchema('UTF-8'), # The schema to deserialize messages
+        topics='transaction', # The topic to consume messages frommessages
+        deserialization_schema=deserialization_schema, # The schema to deserialize messages
         properties={'bootstrap.servers': 'localhost:9092', 'group.id': 'my-group'} # The Kafka broker address and consumer group ID
     )
 
