@@ -56,9 +56,9 @@ def count_rows(data):
     return data 
 
 def check_data(data):
-    transpose_data = list(zip(*data))
+    # transpose_data = list(zip(*data))
     # col_target = transpose_data[3]
-    col_target = [row[3] for row in data] 
+    # col_target = [row[3] for row in data] 
     # print(f"column target is: {col_target[0]} ",f" typeis: {type(col_target[0])}")
     # print(f"data[0] type is {type(data[0])}",f"data[0][3] type is {type(data[0][3])}",f"data[0] len is {len(data[0])}")
     if data[0][3] >= 5000:
@@ -107,8 +107,7 @@ def read_from_kafka():
     stream = env.add_source(kafka_consumer)
     parsed_stream = stream.map(parse_csv)
 
-    data_stream = parsed_stream.map(parse_tuple)
-    check_stream = data_stream.map(check_data)
+    data_stream = parsed_stream.map(check_data)
 
     
     # define the sink
