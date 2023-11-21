@@ -105,18 +105,42 @@ def read_from_kafka():
     kafka_consumer.set_start_from_earliest()
     stream = env.add_source(kafka_consumer)
     parsed_stream = stream.map(parse_csv)
-    # parsed_stream.print()
-    # count_stream = parsed_stream.map(count_rows)
-    # count_stream.print()
-    # checked_stream = count_stream.map(check_data)
-    # checked_stream.print()
-    # type_info = checked_stream.get_type()
-    # print(type_info)
 
-    ds = parsed_stream.map(parse_tuple)
+    # define the watermark strategy
+    # 定义时间戳策略，并设置时间戳提取器
+    watermark_strategy = WatermarkStrategy.for_monotonous_timestamps() \
+        .with_timestamp_assigner(MyTimestampAssigner())
+
+    # 定义窗口，并设置窗口处理函数
+    data_stream = parsed_stream.map(parse_tuple)
+    
+    ds = data_stream.assign_timestamps_and_watermarks(watermark_strategy) \
+        .key_by(lambda x: x[0], key_type=Types.STRING()) \
+        .window(SlidingEventTimeWindows.of(Time.milliseconds(5), Time.milliseconds(2))) \
+        .process(CountWindowProcessFunction())
+
     type_info = ds.get_type()
     print(type_info)
-    ds.print()
+    
+    # define the sink
+    # 定义输出流
+    if output_path is not None:
+        ds.sink_to(
+            sink=FileSink.for_row_format(
+                base_path=output_path,
+                encoder=Encoder.simple_string_encoder())
+            .with_output_file_config(
+                OutputFileConfig.builder()
+                .with_part_prefix("prefix")
+                .with_part_suffix(".ext")
+                .build())
+            .with_rolling_policy(RollingPolicy.default_rolling_policy())
+            .build()
+        )
+    else:
+        print("Printing result to stdout. Use --output to specify output path.")
+        ds.print()
+
     env.execute()
 
 if __name__ == '__main__':
