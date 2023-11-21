@@ -113,9 +113,9 @@ def read_from_kafka():
     # type_info = checked_stream.get_type()
     # print(type_info)
 
-    ds = parsed_stream.map(parse_tuple,
-        type_info=Types.TUPLE([Types.STRING(), Types.STRING(), Types.INT(), Types.INT(), Types.STRING(), Types.STRING()]))
-
+    ds = parsed_stream.map(parse_tuple)
+    type_info = ds.get_type()
+    print(type_info)
     ds.print()
     env.execute()
 
