@@ -76,6 +76,13 @@ def check_data(data):
     print(f"data[0] type is {type(data[0])}",f"data[0][1] type is {type(data[0][1])}",f"data[0] len is {len(data[0])}")
     return data
 
+def parse_tuple(x):
+    try:
+        return (int(x[0]), str(x[1]), int(x[2]), int(x[3]), str(x[4]), str(x[5]))
+    except ValueError:
+        logging.error(f"Failed to parse tuple: {x}")
+        return (str(x[0]), str(x[1]), str(x[2]), str(x[3]), str(x[4]), str(x[5]))
+
 def read_from_kafka():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -106,11 +113,9 @@ def read_from_kafka():
     # type_info = checked_stream.get_type()
     # print(type_info)
 
-    ds = checked_stream.map(lambda x: ( int(x[0][0]), str(x[0][1]), int(x[0][2]), int(x[0][3]), str(x[0][4]), str(x[0][5])), \
+    ds = checked_stream.map(parse_tuple, \
         output_type=Types.TUPLE([Types.INT(),Types.STRING(), Types.INT(), Types.INT(), Types.STRING(), Types.STRING()]))
     ds.print()
-
-
     env.execute()
 
 if __name__ == '__main__':
