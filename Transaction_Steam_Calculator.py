@@ -73,7 +73,7 @@ def check_data(data):
     # # col_target = transpose_data[3]
     # col_target = [row[3] for row in data] 
     # print(f"column target is: {col_target[0]} ",f" typeis: {type(col_target[0])}")
-    print(f"data[0] type is {type(data[0])}",f"data[0][3] type is {type(data[0][3])}",f"data[0] len is {len(data[0])}")
+    # print(f"data[0] type is {type(data[0])}",f"data[0][3] type is {type(data[0][3])}",f"data[0] len is {len(data[0])}")
     return data
 
 def parse_tuple(x):
@@ -106,14 +106,14 @@ def read_from_kafka():
     stream = env.add_source(kafka_consumer)
     parsed_stream = stream.map(parse_csv)
     # parsed_stream.print()
-    count_stream = parsed_stream.map(count_rows)
+    # count_stream = parsed_stream.map(count_rows)
     # count_stream.print()
-    checked_stream = count_stream.map(check_data)
+    # checked_stream = count_stream.map(check_data)
     # checked_stream.print()
     # type_info = checked_stream.get_type()
     # print(type_info)
 
-    ds = checked_stream.map(parse_tuple,
+    ds = parsed_stream.map(parse_tuple,
         type_info=Types.TUPLE([Types.STRING(), Types.STRING(), Types.INT(), Types.INT(), Types.STRING(), Types.STRING()]))
 
     ds.print()
