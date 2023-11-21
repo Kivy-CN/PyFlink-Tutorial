@@ -106,7 +106,7 @@ def read_from_kafka():
     )
     kafka_consumer.set_start_from_earliest()
     stream = env.add_source(kafka_consumer)
-    parsed_stream = stream.map(parse_csv)
+    parsed_stream = stream.map(parse_csv).map(parse_tuple)
 
     data_stream = parsed_stream.map(check_data)
 
@@ -128,7 +128,7 @@ def read_from_kafka():
         )
     else:
         print("Printing result to stdout. Use --output to specify output path.")
-        # data_stream.print()
+        data_stream.print()
                 
         # 调用函数，传入data_stream作为参数
         
