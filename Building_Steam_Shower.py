@@ -51,7 +51,7 @@ def parse_csv(x):
 
 def parse_tuple(x):
     try:
-        return (datetime.strptime(str(x[0][0]), "%Y-%m-%d %H:%M:%S").timestamp(), float(x[0][1]))
+        return (datetime.strptime(str(x[0]), "%Y-%m-%d %H:%M:%S").timestamp(), float(x[1]))
     except ValueError:
         logging.error(f"Failed to parse tuple: {x}")
         return None
