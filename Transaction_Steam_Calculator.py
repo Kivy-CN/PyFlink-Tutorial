@@ -101,7 +101,7 @@ def read_from_kafka():
     count_stream = parsed_stream.map(count_rows)
     # count_stream.print()
     checked_stream = count_stream.map(check_data)
-    checked_stream.print()
+    # checked_stream.print()
 
     watermark_strategy = WatermarkStrategy.for_monotonous_timestamps() \
             .with_timestamp_assigner(MyTimestampAssigner())
