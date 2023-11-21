@@ -83,7 +83,7 @@ def read_from_kafka():
     # 将kafka_consumer添加到StreamExecutionEnvironment中
     stream = env.add_source(kafka_consumer)
     # 将stream中的每一条数据解析为csv文件
-    parsed_stream = stream.map(parse_csv).map(count_rows).map(parse_tuple)
+    parsed_stream = stream.map(parse_csv)
     # 打印解析后的数据
     parsed_stream.print()
     # 执行StreamExecutionEnvironment
