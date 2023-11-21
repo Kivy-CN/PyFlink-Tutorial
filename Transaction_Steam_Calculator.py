@@ -18,6 +18,7 @@ from typing import Iterable
 import numpy as np
 import pandas as pd
 
+import matplotlib.pyplot as plt
 from datetime import datetime
 from pyflink.common import Types, WatermarkStrategy, Time, Encoder
 from pyflink.common.watermark_strategy import TimestampAssigner
@@ -30,7 +31,14 @@ from pyflink.datastream import StreamExecutionEnvironment, RuntimeExecutionMode
 from pyflink.datastream.connectors.file_system import FileSource, StreamFormat
 from pyflink.common import SimpleStringSchema
 
-
+def beep():
+    if platform.system() == "Windows":
+        import winsound
+        winsound.Beep(440, 1000)
+    elif platform.system() == "Linux":
+        os.system("beep")
+    else:
+        print("Unsupported platform")
 
 def parse_csv(x):    
     x = x.replace("[b'", "")
@@ -62,22 +70,32 @@ def check_data(data):
     # print(f"column target is: {col_target[0]} ",f" typeis: {type(col_target[0])}")
     # print(f"data[0] type is {type(data[0])}",f"data[0][3] type is {type(data[0][3])}",f"data[0] len is {len(data[0])}")
     try:
-        if int(data[0][3]) >= 5000:
+        if int(data[0][3]) >= 50000:
             beep()
-            print(f"data[0][3] is {(data[0][3])}",f" Larger than 5000!\n")
+            print(f"data[0][3] is {(data[0][3])}",f" Larger than 50000!\n")
     except ValueError:
         pass
     return data
 
+# 定义一个函数，用于绘制数据流的折线图
+def plot_data_stream(data_stream):
+    # 创建一个新的图形对象
+    fig = plt.figure()
+    # 设置图形的标题和坐标轴标签
+    plt.title("Data Stream of the Fourth Column")
+    plt.xlabel("Time")
+    plt.ylabel("Value")
+    # 创建一个子图对象，用于绘制折线图
+    ax = fig.add_subplot(111)
+    # 使用plot方法绘制数据流的折线图，传入x和y参数，以及其他可选参数
+    ax.plot(data_stream[:, 3], label="Value")
+    # 设置折线图的颜色和线宽
+    ax.plot(data_stream[:, 3], color="blue", linewidth=2)
+    # 设置折线图的标签和图例位置
+    ax.legend(loc="upper left")
+    # 显示图形
+    plt.show()
 
-def beep():
-    if platform.system() == "Windows":
-        import winsound
-        winsound.Beep(440, 1000)
-    elif platform.system() == "Linux":
-        os.system("beep")
-    else:
-        print("Unsupported platform")
 
 
 def parse_tuple(x):
@@ -130,7 +148,10 @@ def read_from_kafka():
         )
     else:
         print("Printing result to stdout. Use --output to specify output path.")
-        data_stream.print()
+        # data_stream.print()
+                
+        # 调用函数，传入data_stream作为参数
+        plot_data_stream(data_stream)
 
     env.execute()
 
