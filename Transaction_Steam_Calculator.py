@@ -103,8 +103,8 @@ def read_from_kafka():
     checked_stream = count_stream.map(check_data)
     # checked_stream.print()
 
-    watermark_strategy = WatermarkStrategy.for_monotonous_timestamps() \
-            .with_timestamp_assigner(MyTimestampAssigner())
+    # watermark_strategy = WatermarkStrategy.for_monotonous_timestamps() \
+    #         .with_timestamp_assigner(MyTimestampAssigner())
 
     # 定义窗口，并设置窗口处理函数
     # ds = checked_stream.assign_timestamps_and_watermarks(watermark_strategy) \
