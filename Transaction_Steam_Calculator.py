@@ -103,37 +103,9 @@ def read_from_kafka():
     checked_stream = count_stream.map(check_data)
     # checked_stream.print()
 
-    # watermark_strategy = WatermarkStrategy.for_monotonous_timestamps() \
-    #         .with_timestamp_assigner(MyTimestampAssigner())
-
-    # 定义窗口，并设置窗口处理函数
-    # ds = checked_stream.assign_timestamps_and_watermarks(watermark_strategy) \
-    #     .key_by(lambda x: x[0], key_type=Types.STRING()) \
-    #     .window(SlidingEventTimeWindows.of(Time.milliseconds(5), Time.milliseconds(2))) \
-    #     .process(CountWindowProcessFunction(),
-    #              Types.TUPLE([Types.INT(),Types.STRING(), Types.INT(), Types.INT(), Types.STRING(), Types.STRING()]))
-
-    ds = parsed_stream.map(lambda x: ( int(x[0]), str(x[1]), int(x[2]), int(x[3]), str(x[4]), str(x[5])), \
+    ds = checked_stream.map(lambda x: ( int(x[0]), str(x[1]), int(x[2]), int(x[3]), str(x[4]), str(x[5])), \
         output_type=Types.TUPLE([Types.INT(),Types.STRING(), Types.INT(), Types.INT(), Types.STRING(), Types.STRING()]))
-
-    # define the sink
-    # 定义输出流
-    if output_path is not None:
-        ds.sink_to(
-            sink=FileSink.for_row_format(
-                base_path=output_path,
-                encoder=Encoder.simple_string_encoder())
-            .with_output_file_config(
-                OutputFileConfig.builder()
-                .with_part_prefix("prefix")
-                .with_part_suffix(".ext")
-                .build())
-            .with_rolling_policy(RollingPolicy.default_rolling_policy())
-            .build()
-        )
-    else:
-        print("Printing result to stdout. Use --output to specify output path.")
-        ds.print()
+    ds.print()
 
 
     env.execute()
