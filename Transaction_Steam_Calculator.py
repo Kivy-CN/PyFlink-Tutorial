@@ -32,8 +32,11 @@ from pyflink.common import SimpleStringSchema
 # 定义一个MyTimestampAssigner类，继承自TimestampAssigner类，用于提取时间戳
 class MyTimestampAssigner(TimestampAssigner):
     # 重写extract_timestamp方法，用于提取时间戳
-    def extract_timestamp(self, value, record_timestamp) -> int:
+        if value is None:
+            logging.error("Value is None")
+            return 0
         return int(value[1])
+
 
 
 # 定义一个CountWindowProcessFunction类，继承自ProcessWindowFunction[tuple, tuple, str, TimeWindow]类，用于计算窗口内的元素数量
