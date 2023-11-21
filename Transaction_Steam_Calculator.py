@@ -17,6 +17,7 @@ from typing import Iterable
 import numpy as np
 import pandas as pd
 
+from datetime import datetime
 from pyflink.common import Types, WatermarkStrategy, Time, Encoder
 from pyflink.common.watermark_strategy import TimestampAssigner
 from pyflink.datastream import StreamExecutionEnvironment, ProcessWindowFunction
@@ -37,7 +38,8 @@ class MyTimestampAssigner(TimestampAssigner):
             logging.error("Value is None")
             return 0
         else:
-            return int(value[1])
+            # return value[5]
+            return datetime.strptime(value[5], "%Y-%m-%d %H:%M:%S").timestamp()
 
 
 
