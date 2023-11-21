@@ -77,7 +77,7 @@ def check_data(data):
     #     pass
     if abs(float(data[0][1])) >= 0.5:
         beep()
-        print(f"data[0][1] is {(data[0][1])}",f" ABS Larger than 0.5!\n")
+        print(f"data at {data[0][0]} is {(data[0][1])}",f" ABS Larger than 0.5!\n")
 
     return data
 
