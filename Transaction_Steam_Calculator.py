@@ -75,10 +75,11 @@ def check_data(data):
             print(f"data[0][3] is {(data[0][3])}",f" Larger than 50000!\n")
     except ValueError:
         pass
+    plot_data_stream(data[0][3])
     return data
 
 # 定义一个函数，用于绘制数据流的折线图
-def plot_data_stream(data_stream):
+def plot_data_stream(data_item):
     # 创建一个新的图形对象
     fig = plt.figure()
     # 设置图形的标题和坐标轴标签
@@ -88,9 +89,9 @@ def plot_data_stream(data_stream):
     # 创建一个子图对象，用于绘制折线图
     ax = fig.add_subplot(111)
     # 使用plot方法绘制数据流的折线图，传入x和y参数，以及其他可选参数
-    ax.plot(data_stream[:, 3], label="Value")
+    ax.plot(data_item, label="Value")
     # 设置折线图的颜色和线宽
-    ax.plot(data_stream[:, 3], color="blue", linewidth=2)
+    ax.plot(data_item, color="blue", linewidth=2)
     # 设置折线图的标签和图例位置
     ax.legend(loc="upper left")
     # 显示图形
@@ -151,7 +152,7 @@ def read_from_kafka():
         # data_stream.print()
                 
         # 调用函数，传入data_stream作为参数
-        plot_data_stream(data_stream)
+        
 
     env.execute()
 
