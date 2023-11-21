@@ -78,10 +78,10 @@ def check_data(data):
 
 def parse_tuple(x):
     try:
-        return (int(x[0]), str(x[1]), int(x[2]), int(x[3]), str(x[4]), str(x[5]))
+        return (int(x[0][0]), str(x[0][1]), int(x[0][2]), int(x[0][3]), str(x[0][4]), str(x[0][5]))
     except ValueError:
         logging.error(f"Failed to parse tuple: {x}")
-        return (str(x[0]), str(x[1]), str(x[2]), str(x[3]), str(x[4]), str(x[5]))
+        return (str(x[0][0]), str(x[0][1]), str(x[0][2]), str(x[0][3]), str(x[0][4]), str(x[0][5]))
 
 def read_from_kafka():
     parser = argparse.ArgumentParser()
