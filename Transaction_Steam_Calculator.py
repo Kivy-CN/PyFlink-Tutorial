@@ -113,7 +113,7 @@ def read_from_kafka():
     #     .process(CountWindowProcessFunction(),
     #              Types.TUPLE([Types.INT(),Types.STRING(), Types.INT(), Types.INT(), Types.STRING(), Types.STRING()]))
 
-    ds = checked_stream.map(lambda x: ( int(x[0]), str(x[1]), int(x[2]), int(x[3]), str(x[4]), str(x[5])), \
+    ds = parsed_stream.map(lambda x: ( int(x[0]), str(x[1]), int(x[2]), int(x[3]), str(x[4]), str(x[5])), \
         output_type=Types.TUPLE([Types.INT(),Types.STRING(), Types.INT(), Types.INT(), Types.STRING(), Types.STRING()]))
 
     # define the sink
