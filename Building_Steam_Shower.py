@@ -50,6 +50,8 @@ def parse_csv(x):
     return next(result)
 
 def parse_tuple(x):
+    
+    print(f"x[0] type is {type(x[0])}",f"x[0][1] type is {type(x[0][1])}",f"x[0] len is {len(x[0])}")
     try:
         return (datetime.strptime(str(x[0]), "%Y-%m-%d %H:%M:%S").timestamp(), float(x[1]))
     except ValueError:
