@@ -78,7 +78,7 @@ def check_data(data):
 
 def parse_tuple(x):
     try:
-        return (int(x[0][0]), str(x[0][1]), int(x[0][2]), int(x[0][3]), str(x[0][4]), str(x[0][5]))
+        return (float(x[0][0]), str(x[0][1]), float(x[0][2]), float(x[0][3]), str(x[0][4]), str(x[0][5]))
     except ValueError:
         logging.error(f"Failed to parse tuple: {x}")
         return None
@@ -114,7 +114,7 @@ def read_from_kafka():
     # print(type_info)
 
     ds = checked_stream.map(parse_tuple, \
-        output_type=Types.TUPLE([Types.INT(),Types.STRING(), Types.INT(), Types.INT(), Types.STRING(), Types.STRING()]))
+        output_type=Types.TUPLE([Types.FLOAT(),Types.STRING(), Types.FLOAT(), Types.FLOAT(), Types.STRING(), Types.STRING()]))
     ds.print()
     env.execute()
 
