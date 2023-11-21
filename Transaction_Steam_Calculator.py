@@ -107,11 +107,16 @@ def read_from_kafka():
             .with_timestamp_assigner(MyTimestampAssigner())
 
     # 定义窗口，并设置窗口处理函数
+    # ds = checked_stream.assign_timestamps_and_watermarks(watermark_strategy) \
+    #     .key_by(lambda x: x[0], key_type=Types.STRING()) \
+    #     .window(SlidingEventTimeWindows.of(Time.milliseconds(5), Time.milliseconds(2))) \
+    #     .process(CountWindowProcessFunction(),
+    #              Types.TUPLE([Types.INT(),Types.STRING(), Types.INT(), Types.INT(), Types.STRING(), Types.STRING()]))
+
     ds = checked_stream.assign_timestamps_and_watermarks(watermark_strategy) \
         .key_by(lambda x: x[0], key_type=Types.STRING()) \
         .window(SlidingEventTimeWindows.of(Time.milliseconds(5), Time.milliseconds(2))) \
-        .process(CountWindowProcessFunction(),
-                 Types.TUPLE([Types.INT(),Types.STRING(), Types.INT(), Types.INT(), Types.STRING(), Types.STRING()]))
+        .process(CountWindowProcessFunction())
 
     # define the sink
     # 定义输出流
