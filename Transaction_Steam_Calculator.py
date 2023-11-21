@@ -35,7 +35,8 @@ class MyTimestampAssigner(TimestampAssigner):
         if value is None:
             logging.error("Value is None")
             return 0
-        return int(value[1])
+        else:
+            return int(value[1])
 
 
 
