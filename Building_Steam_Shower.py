@@ -49,6 +49,12 @@ def parse_csv(x):
     # 返回csv文件的第一行
     return next(result)
 
+def count_rows(data):
+    row_count = len(data)
+    type_count = type(data)
+    print(f"Received {row_count} rows of {type_count} data.")
+    return data 
+
 def parse_tuple(x):
     
     print(f"x[0] type is {type(x[0])}",f"x[0][1] type is {type(x[0][1])}",f"x[0] len is {len(x[0])}")
@@ -77,7 +83,7 @@ def read_from_kafka():
     # 将kafka_consumer添加到StreamExecutionEnvironment中
     stream = env.add_source(kafka_consumer)
     # 将stream中的每一条数据解析为csv文件
-    parsed_stream = stream.map(parse_csv).map(parse_tuple)
+    parsed_stream = stream.map(parse_csv).map(count_rows).map(parse_tuple)
     # 打印解析后的数据
     parsed_stream.print()
     # 执行StreamExecutionEnvironment
