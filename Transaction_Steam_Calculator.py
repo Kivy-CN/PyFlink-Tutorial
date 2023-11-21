@@ -70,9 +70,10 @@ def count_rows(data):
 
 def check_data(data):
     # transpose_data = list(zip(*data))
-    # col_target = transpose_data[3]
-    col_target = [row[3] for row in data] 
-    print(f"column target is: {col_target[0]} ",f" typeis: {type(col_target[0])}")
+    # # col_target = transpose_data[3]
+    # col_target = [row[3] for row in data] 
+    # print(f"column target is: {col_target[0]} ",f" typeis: {type(col_target[0])}")
+    print(f"data type is {type(data)}",f"data[0] type is {type(data[0])}",f"data len is {len(data)}")
     return data
 
 def read_from_kafka():
@@ -102,10 +103,12 @@ def read_from_kafka():
     # count_stream.print()
     checked_stream = count_stream.map(check_data)
     # checked_stream.print()
+    type_info = checked_stream.get_type()
+    print(type_info)
 
-    ds = checked_stream.map(lambda x: ( int(x[0]), str(x[1]), int(x[2]), int(x[3]), str(x[4]), str(x[5])), \
-        output_type=Types.TUPLE([Types.INT(),Types.STRING(), Types.INT(), Types.INT(), Types.STRING(), Types.STRING()]))
-    ds.print()
+    # ds = checked_stream.map(lambda x: ( int(x[0]), str(x[1]), int(x[2]), int(x[3]), str(x[4]), str(x[5])), \
+    #     output_type=Types.TUPLE([Types.INT(),Types.STRING(), Types.INT(), Types.INT(), Types.STRING(), Types.STRING()]))
+    # ds.print()
 
 
     env.execute()
