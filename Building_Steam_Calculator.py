@@ -68,13 +68,17 @@ def check_data(data):
     # col_target = transpose_data[3]
     # col_target = [row[3] for row in data] 
     # print(f"column target is: {col_target[0]} ",f" typeis: {type(col_target[0])}")
-    print(f"data[0] type is {type(data[0])}",f"data[0][1] type is {type(data[0][1])}",f"data[0][1]  is {data[0][1]}")
-    try:
-        if abs(int(data[0][1])) >= 0.5:
-            beep()
-            print(f"data[0][1] is {(data[0][1])}",f" ABS Larger than 0.5!\n")
-    except ValueError:
-        pass
+    # print(f"data[0] type is {type(data[0])}",f"data[0][1] type is {type(data[0][1])}",f"data[0][1]  is {data[0][1]}")
+    # try:
+    #     if abs(int(data[0][1])) >= 0.5:
+    #         beep()
+    #         print(f"data[0][1] is {(data[0][1])}",f" ABS Larger than 0.5!\n")
+    # except ValueError:
+    #     pass
+    if abs(int(data[0][1])) >= 0.5:
+        beep()
+        print(f"data[0][1] is {(data[0][1])}",f" ABS Larger than 0.5!\n")
+
     return data
 
 def parse_tuple(x):
