@@ -48,6 +48,10 @@ def parse_csv(x):
     x = x.replace("\n']", "")
     # 将x中的\\n']替换为空
     x = x.replace("\\n']", "")
+    # 将x中的\r']替换为空
+    x = x.replace("\r", "")
+    # 将x中的\\r']替换为空
+    x = x.replace("\\r", "")
     # 将x转换为csv格式
     result = csv.reader(io.StringIO(x))
     # 创建一个空列表，用于存放解析后的结果
