@@ -61,8 +61,8 @@ def check_data(data):
     # col_target = [row[3] for row in data] 
     # print(f"column target is: {col_target[0]} ",f" typeis: {type(col_target[0])}")
     # print(f"data[0] type is {type(data[0])}",f"data[0][3] type is {type(data[0][3])}",f"data[0] len is {len(data[0])}")
-    if data[0][3] >= 5000:
-        # beep()
+    if int(data[0][3]) >= 5000:
+        beep()
         print(f"data[0][3] is {(data[0][3])}",f" Larger than 5000!\n")
     return data
 
