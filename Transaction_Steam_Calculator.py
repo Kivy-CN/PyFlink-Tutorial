@@ -113,10 +113,8 @@ def read_from_kafka():
     #     .process(CountWindowProcessFunction(),
     #              Types.TUPLE([Types.INT(),Types.STRING(), Types.INT(), Types.INT(), Types.STRING(), Types.STRING()]))
 
-    ds = checked_stream.assign_timestamps_and_watermarks(watermark_strategy) \
-        .key_by(lambda x: x[0], key_type=Types.STRING()) \
-        .window(SlidingEventTimeWindows.of(Time.milliseconds(5), Time.milliseconds(2))) \
-        .process(CountWindowProcessFunction())
+    ds = checked_stream.map(lambda x: ( int(x[0]), str(x[1]), int(x[2]), int(x[3]), str(x[4]), str(x[5])), \
+        output_type=Types.TUPLE([Types.INT(),Types.STRING(), Types.INT(), Types.INT(), Types.STRING(), Types.STRING()]))
 
     # define the sink
     # 定义输出流
