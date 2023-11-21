@@ -1,3 +1,4 @@
+import platform
 import os
 # # Get current absolute path
 # current_file_path = os.path.abspath(__file__)
@@ -30,27 +31,6 @@ from pyflink.datastream.connectors.file_system import FileSource, StreamFormat
 from pyflink.common import SimpleStringSchema
 
 
-# 定义一个MyTimestampAssigner类，继承自TimestampAssigner类，用于提取时间戳
-class MyTimestampAssigner(TimestampAssigner):    
-    def extract_timestamp(self, value, record_timestamp) -> int:
-    # 重写extract_timestamp方法，用于提取时间戳
-        if value is None:
-            logging.error("Value is None")
-            return 0
-        else:
-            # return value[5]
-            return datetime.strptime(value[5], "%Y-%m-%d %H:%M:%S").timestamp()
-
-
-
-# 定义一个CountWindowProcessFunction类，继承自ProcessWindowFunction[tuple, tuple, str, TimeWindow]类，用于计算窗口内的元素数量
-class CountWindowProcessFunction(ProcessWindowFunction[tuple, tuple, str, TimeWindow]):
-    # 重写process方法，用于计算窗口内的元素数量
-    def process(self,
-                key: str,
-                context: ProcessWindowFunction.Context[TimeWindow],
-                elements: Iterable[tuple]) -> Iterable[tuple]:
-        return [(key, context.window().start, context.window().end, len([e for e in elements]))]
 
 def parse_csv(x):    
     x = x.replace("[b'", "")
@@ -76,12 +56,26 @@ def count_rows(data):
     return data 
 
 def check_data(data):
-    # transpose_data = list(zip(*data))
-    # # col_target = transpose_data[3]
-    # col_target = [row[3] for row in data] 
+    transpose_data = list(zip(*data))
+    # col_target = transpose_data[3]
+    col_target = [row[3] for row in data] 
     # print(f"column target is: {col_target[0]} ",f" typeis: {type(col_target[0])}")
     # print(f"data[0] type is {type(data[0])}",f"data[0][3] type is {type(data[0][3])}",f"data[0] len is {len(data[0])}")
+    if data[0][3] >= 5000:
+        beep()
+        print(f"data[0][3] is {(data[0])}",f" Larger than 5000!\n")
     return data
+
+
+def beep():
+    if platform.system() == "Windows":
+        import winsound
+        winsound.Beep(440, 1000)
+    elif platform.system() == "Linux":
+        os.system("beep")
+    else:
+        print("Unsupported platform")
+
 
 def parse_tuple(x):
     try:
@@ -113,26 +107,14 @@ def read_from_kafka():
     stream = env.add_source(kafka_consumer)
     parsed_stream = stream.map(parse_csv)
 
-    # define the watermark strategy
-    # 定义时间戳策略，并设置时间戳提取器
-    watermark_strategy = WatermarkStrategy.for_monotonous_timestamps() \
-        .with_timestamp_assigner(MyTimestampAssigner())
-
-    # 定义窗口，并设置窗口处理函数
     data_stream = parsed_stream.map(parse_tuple)
-    
-    ds = data_stream.assign_timestamps_and_watermarks(watermark_strategy) \
-        .key_by(lambda x: x[0], key_type=Types.STRING()) \
-        .window(SlidingEventTimeWindows.of(Time.milliseconds(5), Time.milliseconds(2))) \
-        .process(CountWindowProcessFunction())
+    check_stream = data_stream.map(check_data)
 
-    type_info = ds.get_type()
-    print(type_info)
     
     # define the sink
     # 定义输出流
     if output_path is not None:
-        ds.sink_to(
+        data_stream.sink_to(
             sink=FileSink.for_row_format(
                 base_path=output_path,
                 encoder=Encoder.simple_string_encoder())
@@ -146,7 +128,7 @@ def read_from_kafka():
         )
     else:
         print("Printing result to stdout. Use --output to specify output path.")
-        ds.print()
+        data_stream.print()
 
     env.execute()
 
