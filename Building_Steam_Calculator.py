@@ -80,7 +80,7 @@ def check_data(data):
 
 def parse_tuple(x):
     try:
-        return (datetime.strptime(str(x[0][0]), "%Y-%m-%d %H:%M:%S").timestamp(), float(x[0][1]))
+        return (str(x[0][0]), float(x[0][1]))
     except ValueError:
         logging.error(f"Failed to parse tuple: {x}")
         return None
@@ -106,7 +106,7 @@ def read_from_kafka():
     )
     kafka_consumer.set_start_from_earliest()
     stream = env.add_source(kafka_consumer)
-    parsed_stream = stream.map(parse_csv).map(parse_tuple)
+    parsed_stream = stream.map(parse_csv)
 
     data_stream = parsed_stream.map(check_data)
 
