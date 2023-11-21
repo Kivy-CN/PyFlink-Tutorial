@@ -9,19 +9,41 @@ import os
 
 import argparse
 import csv
-import re
 import io
 import logging
 import sys
-import numpy as np 
+from typing import Iterable
+
+import numpy as np
 import pandas as pd
-from pyflink.table import StreamTableEnvironment
-from pyflink.common import WatermarkStrategy, Encoder, Types
-from pyflink.datastream import StreamExecutionEnvironment, RuntimeExecutionMode
-from pyflink.datastream.connectors.file_system import FileSource, StreamFormat, FileSink, OutputFileConfig, RollingPolicy
-from pyflink.common import Types, SimpleStringSchema
-from pyflink.datastream import StreamExecutionEnvironment
+
+from pyflink.common import Types, WatermarkStrategy, Time, Encoder
+from pyflink.common.watermark_strategy import TimestampAssigner
+from pyflink.datastream import StreamExecutionEnvironment, ProcessWindowFunction
+from pyflink.datastream.connectors.file_system import FileSink, OutputFileConfig, RollingPolicy
 from pyflink.datastream.connectors.kafka import FlinkKafkaProducer, FlinkKafkaConsumer
+from pyflink.datastream.window import SlidingEventTimeWindows, TimeWindow
+from pyflink.table import StreamTableEnvironment
+from pyflink.datastream import StreamExecutionEnvironment, RuntimeExecutionMode
+from pyflink.datastream.connectors.file_system import FileSource, StreamFormat
+from pyflink.common import SimpleStringSchema
+
+
+# 定义一个MyTimestampAssigner类，继承自TimestampAssigner类，用于提取时间戳
+class MyTimestampAssigner(TimestampAssigner):
+    # 重写extract_timestamp方法，用于提取时间戳
+    def extract_timestamp(self, value, record_timestamp) -> int:
+        return int(value[1])
+
+
+# 定义一个CountWindowProcessFunction类，继承自ProcessWindowFunction[tuple, tuple, str, TimeWindow]类，用于计算窗口内的元素数量
+class CountWindowProcessFunction(ProcessWindowFunction[tuple, tuple, str, TimeWindow]):
+    # 重写process方法，用于计算窗口内的元素数量
+    def process(self,
+                key: str,
+                context: ProcessWindowFunction.Context[TimeWindow],
+                elements: Iterable[tuple]) -> Iterable[tuple]:
+        return [(key, context.window().start, context.window().end, len([e for e in elements]))]
 
 def parse_csv(x):    
     x = x.replace("[b'", "")
@@ -54,7 +76,17 @@ def check_data(data):
     return data
 
 def read_from_kafka():
-    env = StreamExecutionEnvironment.get_execution_environment()    
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--output',
+        dest='output',
+        required=False,
+        help='Output file to write results to.')
+    argv = sys.argv[1:]
+    known_args, _ = parser.parse_known_args(argv)
+    output_path = known_args.output
+    env = StreamExecutionEnvironment.get_execution_environment()
+    env.set_parallelism(1)  
     env.add_jars("file:///home/hadoop/Desktop/PyFlink-Tutorial/flink-sql-connector-kafka-3.1-SNAPSHOT.jar")
     print("start reading data from kafka")
     kafka_consumer = FlinkKafkaConsumer(
@@ -68,8 +100,39 @@ def read_from_kafka():
     # parsed_stream.print()
     count_stream = parsed_stream.map(count_rows)
     # count_stream.print()
-    max_min_stream = count_stream.map(check_data)
-    max_min_stream.print()
+    checked_stream = count_stream.map(check_data)
+    checked_stream.print()
+
+    watermark_strategy = WatermarkStrategy.for_monotonous_timestamps() \
+            .with_timestamp_assigner(MyTimestampAssigner())
+
+    # 定义窗口，并设置窗口处理函数
+    ds = checked_stream.assign_timestamps_and_watermarks(watermark_strategy) \
+        .key_by(lambda x: x[0], key_type=Types.STRING()) \
+        .window(SlidingEventTimeWindows.of(Time.milliseconds(5), Time.milliseconds(2))) \
+        .process(CountWindowProcessFunction(),
+                 Types.TUPLE([Types.INT(),Types.STRING(), Types.INT(), Types.INT(), Types.STRING(), Types.STRING()]))
+
+    # define the sink
+    # 定义输出流
+    if output_path is not None:
+        ds.sink_to(
+            sink=FileSink.for_row_format(
+                base_path=output_path,
+                encoder=Encoder.simple_string_encoder())
+            .with_output_file_config(
+                OutputFileConfig.builder()
+                .with_part_prefix("prefix")
+                .with_part_suffix(".ext")
+                .build())
+            .with_rolling_policy(RollingPolicy.default_rolling_policy())
+            .build()
+        )
+    else:
+        print("Printing result to stdout. Use --output to specify output path.")
+        ds.print()
+
+
     env.execute()
 
 if __name__ == '__main__':
