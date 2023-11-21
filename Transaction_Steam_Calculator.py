@@ -30,7 +30,8 @@ from pyflink.common import SimpleStringSchema
 
 
 # 定义一个MyTimestampAssigner类，继承自TimestampAssigner类，用于提取时间戳
-class MyTimestampAssigner(TimestampAssigner):
+class MyTimestampAssigner(TimestampAssigner):    
+    def extract_timestamp(self, value, record_timestamp) -> int:
     # 重写extract_timestamp方法，用于提取时间戳
         if value is None:
             logging.error("Value is None")
