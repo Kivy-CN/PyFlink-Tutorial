@@ -73,7 +73,7 @@ def check_data(data):
     # # col_target = transpose_data[3]
     # col_target = [row[3] for row in data] 
     # print(f"column target is: {col_target[0]} ",f" typeis: {type(col_target[0])}")
-    print(f"data type is {type(data)}",f"data[0] type is {type(data[0])}",f"data len is {len(data)}")
+    print(f"data[0] type is {type(data[0])}",f"data[0][0] type is {type(data[0][0])}",f"data[0] len is {len(data[0])}")
     return data
 
 def read_from_kafka():
