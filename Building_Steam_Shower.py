@@ -1,27 +1,35 @@
+import platform
 import os
-# Get current absolute path
-current_file_path = os.path.abspath(__file__)
-# Get current dir path
-current_dir_path = os.path.dirname(current_file_path)
-# Change into current dir path
-os.chdir(current_dir_path)
-output_path = current_dir_path
+# # Get current absolute path
+# current_file_path = os.path.abspath(__file__)
+# # Get current dir path
+# current_dir_path = os.path.dirname(current_file_path)
+# # Change into current dir path
+# os.chdir(current_dir_path)
+# output_path = current_dir_path
 
 import argparse
 import csv
-import re
 import io
 import logging
 import sys
-import numpy as np 
+from typing import Iterable
+
+import numpy as np
 import pandas as pd
-from pyflink.table import StreamTableEnvironment
-from pyflink.common import WatermarkStrategy, Encoder, Types
-from pyflink.datastream import StreamExecutionEnvironment, RuntimeExecutionMode
-from pyflink.datastream.connectors.file_system import FileSource, StreamFormat, FileSink, OutputFileConfig, RollingPolicy
-from pyflink.common import Types, SimpleStringSchema
-from pyflink.datastream import StreamExecutionEnvironment
+
+import matplotlib.pyplot as plt
+from datetime import datetime
+from pyflink.common import Types, WatermarkStrategy, Time, Encoder
+from pyflink.common.watermark_strategy import TimestampAssigner
+from pyflink.datastream import StreamExecutionEnvironment, ProcessWindowFunction
+from pyflink.datastream.connectors.file_system import FileSink, OutputFileConfig, RollingPolicy
 from pyflink.datastream.connectors.kafka import FlinkKafkaProducer, FlinkKafkaConsumer
+from pyflink.datastream.window import SlidingEventTimeWindows, TimeWindow
+from pyflink.table import StreamTableEnvironment
+from pyflink.datastream import StreamExecutionEnvironment, RuntimeExecutionMode
+from pyflink.datastream.connectors.file_system import FileSource, StreamFormat
+from pyflink.common import SimpleStringSchema
 
 # 定义一个函数parse_csv_old，用于解析csv文件
 def parse_csv_old(x):
@@ -41,6 +49,12 @@ def parse_csv(x):
     # 返回csv文件的第一行
     return next(result)
 
+def parse_tuple(x):
+    try:
+        return (datetime.strptime(str(x[0][0]), "%Y-%m-%d %H:%M:%S").timestamp(), float(x[0][1]))
+    except ValueError:
+        logging.error(f"Failed to parse tuple: {x}")
+        return None
 
 # 定义一个函数read_from_kafka，用于从Kafka读取数据
 def read_from_kafka():
@@ -61,7 +75,7 @@ def read_from_kafka():
     # 将kafka_consumer添加到StreamExecutionEnvironment中
     stream = env.add_source(kafka_consumer)
     # 将stream中的每一条数据解析为csv文件
-    parsed_stream = stream.map(parse_csv)
+    parsed_stream = stream.map(parse_csv).map(parse_tuple)
     # 打印解析后的数据
     parsed_stream.print()
     # 执行StreamExecutionEnvironment
