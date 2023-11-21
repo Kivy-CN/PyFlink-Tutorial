@@ -70,7 +70,7 @@ def check_data(data):
     # print(f"column target is: {col_target[0]} ",f" typeis: {type(col_target[0])}")
     # print(f"data[0] type is {type(data[0])}",f"data[0][3] type is {type(data[0][3])}",f"data[0] len is {len(data[0])}")
     try:
-        if int(abs(data[0][1])) >= 0.5:
+        if abs(int(data[0][1])) >= 0.5:
             beep()
             print(f"data[0][3] is {(data[0][1])}",f" ABS Larger than 0.5!\n")
     except ValueError:
