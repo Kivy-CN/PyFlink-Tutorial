@@ -103,12 +103,12 @@ def read_from_kafka():
     # count_stream.print()
     checked_stream = count_stream.map(check_data)
     # checked_stream.print()
-    type_info = checked_stream.get_type()
-    print(type_info)
+    # type_info = checked_stream.get_type()
+    # print(type_info)
 
-    # ds = checked_stream.map(lambda x: ( int(x[0]), str(x[1]), int(x[2]), int(x[3]), str(x[4]), str(x[5])), \
-    #     output_type=Types.TUPLE([Types.INT(),Types.STRING(), Types.INT(), Types.INT(), Types.STRING(), Types.STRING()]))
-    # ds.print()
+    ds = checked_stream.map(lambda x: ( int(x[0][0]), str(x[0][1]), int(x[0][2]), int(x[0][3]), str(x[0][4]), str(x[0][5])), \
+        output_type=Types.TUPLE([Types.INT(),Types.STRING(), Types.INT(), Types.INT(), Types.STRING(), Types.STRING()]))
+    ds.print()
 
 
     env.execute()
