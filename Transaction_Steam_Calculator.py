@@ -78,7 +78,7 @@ def check_data(data):
 
 def parse_tuple(x):
     try:
-        return (float(x[0][0]), str(x[0][1]), float(x[0][2]), float(x[0][3]), str(x[0][4]), str(x[0][5]))
+        return (str(x[0][0]), str(x[0][1]), int(x[0][2]), int(x[0][3]), str(x[0][4]), str(x[0][5]))
     except ValueError:
         logging.error(f"Failed to parse tuple: {x}")
         return None
