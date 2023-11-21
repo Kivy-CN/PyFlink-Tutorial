@@ -75,7 +75,6 @@ def check_data(data):
             print(f"data[0][3] is {(data[0][3])}",f" Larger than 50000!\n")
     except ValueError:
         pass
-    plot_data_stream(data[0][3])
     return data
 
 # 定义一个函数，用于绘制数据流的折线图

@@ -72,11 +72,10 @@ def check_data(data):
     try:
         if abs(int(data[0][1])) >= 0.5:
             beep()
-            print(f"data[0][3] is {(data[0][1])}",f" ABS Larger than 0.5!\n")
+            print(f"data[0][1] is {(data[0][1])}",f" ABS Larger than 0.5!\n")
     except ValueError:
         pass
     return data
-
 
 def parse_tuple(x):
     try:
@@ -104,9 +103,9 @@ def read_from_kafka():
         deserialization_schema= SimpleStringSchema('UTF-8'), 
         properties={'bootstrap.servers': 'localhost:9092', 'group.id': 'my-group'} 
     )
-    kafka_consumer.set_start_from_earliest()
+        
     stream = env.add_source(kafka_consumer)
-    parsed_stream = stream.map(parse_csv).map(parse_tuple)
+    parsed_stream = stream.map(parse_csv)
 
     data_stream = parsed_stream.map(check_data)
 
