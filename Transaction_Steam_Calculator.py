@@ -64,18 +64,15 @@ def count_rows(data):
     return data 
 
 def check_data(data):
-    # transpose_data = list(zip(*data))
-    # col_target = transpose_data[3]
-    # col_target = [row[3] for row in data] 
-    # print(f"column target is: {col_target[0]} ",f" typeis: {type(col_target[0])}")
-    # print(f"data[0] type is {type(data[0])}",f"data[0][3] type is {type(data[0][3])}",f"data[0] len is {len(data[0])}")
     try:
-        if int(data[0][3]) >= 50000:
+        if int(data[0][3]) >= 5000:
             beep()
-            print(f"data[0][3] is {(data[0][3])}",f" Larger than 50000!\n")
+            print(f"data[0][3] is {(data[0][3])}",f" Larger than 5000!\n")
+        return int(data[0][3]) >= 5000
     except ValueError:
         pass
-    return data
+        
+    
 
 # 定义一个函数，用于绘制数据流的折线图
 def plot_data_stream(data_item):
@@ -127,9 +124,7 @@ def read_from_kafka():
     kafka_consumer.set_start_from_earliest()
     stream = env.add_source(kafka_consumer)
     parsed_stream = stream.map(parse_csv)
-
-    data_stream = parsed_stream.map(check_data)
-
+    data_stream = parsed_stream.filter(check_data)
     
     # define the sink
     # 定义输出流
@@ -148,7 +143,7 @@ def read_from_kafka():
         )
     else:
         print("Printing result to stdout. Use --output to specify output path.")
-        # data_stream.print()
+        data_stream.print()
                 
         # 调用函数，传入data_stream作为参数
         
