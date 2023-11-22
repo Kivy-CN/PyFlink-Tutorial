@@ -13,14 +13,22 @@ from pyflink.common import Types, SimpleStringSchema
 from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.datastream.connectors.kafka import FlinkKafkaProducer, FlinkKafkaConsumer
 
-def split(line):
-    # 将行拆分成单词
-    yield from line.split()
+
+# 定义开始年份和结束年份
+Year_Begin =1999
+Year_End = 2023
+
+def extract_numbers(x):
+    return ' '.join(re.findall(r'\d+', x))
+
+def filter_years(x):
+    return any([Year_Begin <= int(i) <= Year_End for i in x.split()])
+
+def map_years(x):
+    return [i for i in x.split() if Year_Begin <= int(i) <= Year_End][0]
+
 
 def read_from_kafka():
-    # 定义开始年份和结束年份
-    Year_Begin =1999
-    Year_End = 2023
     # 获取流环境
     env = StreamExecutionEnvironment.get_execution_environment()    
     # 添加jar包
@@ -38,28 +46,11 @@ def read_from_kafka():
     output = StringIO()
     sys.stdout = output
     # 添加源，并过滤出指定年份的数据
-    env.add_source(kafka_consumer).map(lambda x: ' '.join(re.findall(r'\d+', x))).filter(lambda x: any([Year_Begin <= int(i) <= Year_End for i in x.split()])).map(lambda x:  [i for i in x.split() if Year_Begin <= int(i) <= Year_End][0]).print()
-    # 将输出流重置为标准输出流
-    sys.stdout = sys.__stdout__
-    # 打印输出流
-    print(output.getvalue())
-    # 将输出流转换为DataFrame
-    df = pd.read_csv(StringIO(output.getvalue()), sep=" ", header=None)
-    # 设置DataFrame的列名
-    df.columns = ["year"]
-    # 获取DataFrame中不重复的年份
-    unique_years = df["year"].unique()
-    # 获取不重复年份的数量
-    unique_years_count = df["year"].nunique()
-    # 获取不重复年份的排序列表
-    unique_years_sorted = df["year"].value_counts().sort_values(ascending=False).index.tolist()
-
-    print(f"当前所获得数据中的不重复年份有 {unique_years_count} 个，从多到少排列如下：")
-    # 遍历不重复年份，打印每个年份出现的次数
-    for year in unique_years_sorted:
-        print(f"{year} 出现了 {df['year'].value_counts()[year]} 次")
-
-    # 执行流作业
+    ds = env.add_source(kafka_consumer)
+    ds = ds.map(extract_numbers)
+    ds = ds.filter(filter_years)
+    ds = ds.map(map_years)
+    ds.print()
     env.execute()
 
 if __name__ == '__main__':

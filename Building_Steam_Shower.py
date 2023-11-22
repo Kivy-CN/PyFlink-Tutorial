@@ -1,13 +1,5 @@
 import platform
 import os
-# # Get current absolute path
-# current_file_path = os.path.abspath(__file__)
-# # Get current dir path
-# current_dir_path = os.path.dirname(current_file_path)
-# # Change into current dir path
-# os.chdir(current_dir_path)
-# output_path = current_dir_path
-
 import argparse
 import csv
 import io
@@ -49,18 +41,27 @@ def parse_csv(x):
     # 返回csv文件的第一行
     return next(result)
 
+# 定义一个函数，用于计算传入数据的行数
 def count_rows(data):
+    # 计算传入数据的行数
     row_count = len(data)
+    # 计算传入数据的类型
     type_count = type(data)
+    # 打印出传入数据的行数和类型
     print(f"Received {row_count} rows of {type_count} data.")
+    # 返回传入数据
     return data 
 
+# 定义一个函数，用于解析元组
 def parse_tuple(x):
     
+    # 打印出传入数据的第一个元素的类型、第二个元素的类型和第一个元素的长度
     print(f"x[0] type is {type(x[0])}",f"x[0][1] type is {type(x[0][1])}",f"x[0] len is {len(x[0])}")
     try:
+        # 尝试使用datetime.strptime函数将传入数据的第一个元素转换为时间戳，并将其第二个元素转换为float类型
         return (datetime.strptime(str(x[0][0]), "%Y-%m-%d %H:%M:%S").timestamp(), float(x[0][1]))
     except ValueError:
+        # 如果转换失败，则打印出传入数据的值，并返回None
         logging.error(f"Failed to parse tuple: {x}")
         return None
 
