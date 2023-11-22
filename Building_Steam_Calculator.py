@@ -93,21 +93,9 @@ def check_data(data):
         # 如果大于0.5，则播放beep函数
         beep()
         # 打印data中第一行的数据和ABS值
-        print(f"data at {data[0][0]} is {(data[0][1])}",f" ABS Larger than 0.5!\n")
-
+        # print(f"data at {data[0][0]} is {(data[0][1])}",f" ABS Larger than 0.5!\n")
     # 返回data
-    return data
-
-# 定义一个parse_tuple函数，用于解析tuple
-def parse_tuple(x):
-    # 尝试将x中的第一个元素转换为字符串，第二个元素转换为浮点数
-    try:
-        return (str(x[0][0]), float(x[0][1]))
-    # 如果转换失败，则打印错误信息
-    except ValueError:
-        logging.error(f"Failed to parse tuple: {x}")
-        # 返回None
-        return None
+    return abs(float(data[0][1])) >= 0.5
 
 # 定义一个read_from_kafka函数，用于从kafka中读取数据
 def read_from_kafka():
@@ -130,7 +118,7 @@ def read_from_kafka():
     parsed_stream = stream.map(parse_csv)
 
     # 将parsed_stream中的每一行数据传入check_data函数，检查数据是否符合要求
-    data_stream = parsed_stream.map(check_data)
+    data_stream = parsed_stream.filter(check_data)
 
     # 将data_stream中的数据打印到标准输出中
     print("Printing result to stdout.")

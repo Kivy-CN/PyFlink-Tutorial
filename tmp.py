@@ -1,38 +1,49 @@
-from pyflink.datastream.functions import MapFunction
-from pyflink.common.typeinfo import Types
+import json
+import logging
+import sys
+from pyflink.common import Types
 from pyflink.datastream import StreamExecutionEnvironment
-from pyflink.datastream.connectors import FlinkKafkaConsumer
-from pyflink.datastream.functions import KeyedProcessFunction
-from pyflink.datastream.state import ValueStateDescriptor
-from pyflink.common.serialization import SimpleStringSchema
 
-class MyKeyedProcessFunction(KeyedProcessFunction):
-    def process_element(self, value, ctx, out):
-        # Convert the bytes object to a string and split it by comma
-        fields = value.decode('utf-8').split(',')
-        # Extract the target field and convert it to an integer
-        target_field = int(fields[3])
-        # Check if the target field is greater than 1000
-        if target_field > 1000:
-            # Emit the input string as output   
-            out.collect(fields[3])
+# 定义show函数，用于显示数据流
+def show(ds, env):
+    ds.print()
+    env.execute()
 
+# 定义update_tel函数，用于更新tel字段
+def update_tel(data):
+    json_data = json.loads(data.info)
+    json_data['tel'] += 1
+    return data.id, json.dumps(json_data)
 
-env = StreamExecutionEnvironment.get_execution_environment()
-env.add_jars("file:///home/hadoop/Desktop/PyFlink-Tutorial/flink-sql-connector-kafka-3.1-SNAPSHOT.jar")
-kafka_consumer = FlinkKafkaConsumer(
-    topics='transaction', 
-    deserialization_schema= SimpleStringSchema('UTF-8'), 
-    properties={'bootstrap.servers': 'localhost:9092', 'group.id': 'my-group'} 
-)
+# 定义filter_by_id函数，用于过滤id字段
+def filter_by_id(data):
+    return data.id == 1
 
-kafka_consumer.set_start_from_earliest()
-data_stream = env.add_source(kafka_consumer)
-# data_stream.print()
-keyed_stream = data_stream.key_by(lambda x: x[0])
-# keyed_stream.process(MyKeyedProcessFunction()).print()
-keyed_stream.process(MyKeyedProcessFunction())
-keyed_stream.print()
+# 定义map_country_tel函数，用于将国家字段和tel字段映射到元组中
+def map_country_tel(data):
+    json_data = json.loads(data.info)
+    return json_data['addr']['country'], json_data['tel']
 
-env.execute()
+# 定义key_by_country函数，用于将元组中的国家字段作为key
+def key_by_country(data):
+    return data[0]
 
+if __name__ == '__main__':
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(message)s")
+    env = StreamExecutionEnvironment.get_execution_environment()
+    env.set_parallelism(1)
+    ds = env.from_collection(
+        collection=[
+            (1, '{"name": "Flink", "tel": 123, "addr": {"country": "Germany", "city": "Berlin"}}'),
+            (2, '{"name": "hello", "tel": 135, "addr": {"country": "China", "city": "Shanghai"}}'),
+            (3, '{"name": "world", "tel": 124, "addr": {"country": "USA", "city": "NewYork"}}'),
+            (4, '{"name": "PyFlink", "tel": 32, "addr": {"country": "China", "city": "Hangzhou"}}')
+        ],
+        type_info=Types.ROW_NAMED(["id", "info"], [Types.INT(), Types.STRING()])
+    )
+    # 调用show函数，显示数据流
+    show(ds.map(update_tel), env)
+    # 调用show函数，显示过滤后的数据流
+    show(ds.filter(filter_by_id).map(update_tel), env)
+    # 调用show函数，显示按照国家字段分组后的数据流
+    show(ds.map(map_country_tel).key_by(key_by_country).sum(1), env)
