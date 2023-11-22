@@ -34,16 +34,21 @@ if __name__ == '__main__':
     env.set_parallelism(1)
     ds = env.from_collection(
         collection=[
-            (1, '{"name": "Flink", "tel": 123, "addr": {"country": "Germany", "city": "Berlin"}}'),
-            (2, '{"name": "hello", "tel": 135, "addr": {"country": "China", "city": "Shanghai"}}'),
-            (3, '{"name": "world", "tel": 124, "addr": {"country": "USA", "city": "NewYork"}}'),
-            (4, '{"name": "PyFlink", "tel": 32, "addr": {"country": "China", "city": "Hangzhou"}}')
+            (1, '{"name": "Flink", "tel": 111, "addr": {"country": "Germany", "city": "Berlin"}}'),
+            (2, '{"name": "hello", "tel": 222, "addr": {"country": "China", "city": "Shanghai"}}'),
+            (3, '{"name": "world", "tel": 333, "addr": {"country": "USA", "city": "NewYork"}}'),
+            (4, '{"name": "PyFlink", "tel": 444, "addr": {"country": "China", "city": "Hangzhou"}}')
         ],
         type_info=Types.ROW_NAMED(["id", "info"], [Types.INT(), Types.STRING()])
     )
+    print('\nFirst we map it: \n')
     # 调用show函数，显示数据流
     show(ds.map(update_tel), env)
+    
+    print('\nThen we filter it: \n')
     # 调用show函数，显示过滤后的数据流
-    show(ds.filter(filter_by_id).map(update_tel), env)
+    show(ds.filter(filter_by_id), env)
+
+    print('\nThen we select it: \n')
     # 调用show函数，显示按照国家字段分组后的数据流
-    show(ds.map(map_country_tel).key_by(key_by_country).sum(1), env)
+    show(ds.map(map_country_tel).key_by(key_by_country), env)
