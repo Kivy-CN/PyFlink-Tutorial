@@ -27,7 +27,7 @@ from pyflink.table.expressions import col, row_interval, CURRENT_ROW
 from pyflink.table.window import Over
 
 
-# 定义一个函数tumble_window_demo，用于演示滚动窗口操作
+# 定义一个函数tumble_window_demo，用于演示全局窗口操作
 def tumble_window_demo():
     # 获取当前的StreamExecutionEnvironment，并设置并行度为1
     env = StreamExecutionEnvironment.get_execution_environment()
@@ -73,7 +73,7 @@ def tumble_window_demo():
                        .build())
 
     # define the over window operation
-    # 定义一个滚动窗口操作，并计算每个名字的总价格
+    # 定义一个全局窗口操作，并计算每个名字的总价格
     table = table.over_window(
         Over.partition_by(col("name"))
             .order_by(col("ts"))

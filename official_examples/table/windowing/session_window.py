@@ -74,7 +74,7 @@ def session_window_demo():
                        .build())
 
     # define the session window operation
-    # 定义一个session window操作
+    # 定义一个session window操作 这里的 with_gap(lit(5).seconds) 就是控制session窗口的大小
     table = table.window(Session.with_gap(lit(5).seconds).on(col("ts")).alias("w")) \
                  .group_by(col('name'), col('w')) \
                  .select(col('name'), col('price').sum, col("w").start, col("w").end)
