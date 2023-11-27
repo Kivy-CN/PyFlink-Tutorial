@@ -1,31 +1,11 @@
-################################################################################
-#  Licensed to the Apache Software Foundation (ASF) under one
-#  or more contributor license agreements.  See the NOTICE file
-#  distributed with this work for additional information
-#  regarding copyright ownership.  The ASF licenses this file
-#  to you under the Apache License, Version 2.0 (the
-#  "License"); you may not use this file except in compliance
-#  with the License.  You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-# limitations under the License.
-################################################################################
 import logging
 import sys
-
 from pyflink.common.time import Instant
-
 from pyflink.common import Types
 from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.table import (DataTypes, TableDescriptor, Schema, StreamTableEnvironment)
 from pyflink.table.expressions import lit, col
 from pyflink.table.window import Slide
-
 
 # 定义滑动窗口示例函数
 def sliding_window_demo():
@@ -35,8 +15,6 @@ def sliding_window_demo():
     env.set_parallelism(1)
     # 创建流表环境
     t_env = StreamTableEnvironment.create(stream_execution_environment=env)
-
-    # define the source with watermark definition
     # 定义源，添加水位定义
     ds = env.from_collection(
         collection=[
@@ -80,21 +58,14 @@ def sliding_window_demo():
     table = table.window(Slide.over(lit(5).seconds).every(lit(2).seconds).on(col("ts")).alias("w"))\
                  .group_by(col('name'), col('w')) \
                  .select(col('name'), col('price').sum, col("w").start, col("w").end)
-
-    # submit for execution
     # 提交执行
     table.execute_insert('sink') \
          .wait()
-    # remove .wait if submitting to a remote cluster, refer to
-    # https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/python/faq/#wait-for-jobs-to-finish-when-executing-jobs-in-mini-cluster
     # 移除.wait()，如果提交到远程集群，参考https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/python/faq/#wait-for-jobs-to-finish-when-executing-jobs-in-mini-cluster
     # 获取更多详情
-    # for more details
-
 
 if __name__ == '__main__':
     # 设置日志输出流为标准输出流，日志级别为INFO，格式为%(message)s
     logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(message)s")
-
     # 调用滑动窗口示例函数
     sliding_window_demo()
