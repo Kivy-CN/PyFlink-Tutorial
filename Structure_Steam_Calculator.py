@@ -107,7 +107,7 @@ def read_from_kafka():
     print("start reading data from kafka")
     # 创建一个FlinkKafkaConsumer实例，用于从kafka中读取数据
     kafka_consumer = FlinkKafkaConsumer(
-        topics='building',
+        topics='structure',
         deserialization_schema= SimpleStringSchema('UTF-8'), 
         properties={'bootstrap.servers': 'localhost:9092', 'group.id': 'my-group'} 
     )

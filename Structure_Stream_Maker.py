@@ -11,4 +11,4 @@ settlement_data = np.random.rand(10000) * 2 - 1
 # 将数据保存为csv文件
 data = {'time': time_data, 'settlement': settlement_data}
 df = pd.DataFrame(data)
-df.to_csv('building_data.csv', index=False)
+df.to_csv('structure_data.csv', index=False)
