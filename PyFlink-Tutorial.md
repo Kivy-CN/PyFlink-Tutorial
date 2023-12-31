@@ -9,11 +9,24 @@
 这学期是我们这门课的第一次开课。
 最初，我们想通过一个传统的编程语言Scala来实现流数据处理框架，并带领大家完成几个样例。
 但后来我们发现这不太妥当。古人说得好，授人以鱼不如授人以渔。
-如果我们只是把这个框架的使用方法告诉你，那么这样的教学意义不大。
+如果我们只是把这个框架的使用方法告诉，那么这样的教学意义不大。
 因此，我们决定向大家展示这种框架的来龙去脉，包括流数据处理的概念、目的等等。
 
 此外，我们不再引入其他编程语言。一方面，这会干扰基础思想的理解，而我们注重的是思想而非技术。
 另一方面，这些框架的发展速度很快。前几个版本可能支持Scala，但后几个版本可能就不支持了。
+
+在学习 Apache Flink 这种大数据处理框架时，选择使用 Java 和 Python 而非 Scala 的理由有以下几点：
+
+1. **稳定性**：如上文所述，大数据处理框架的发展速度很快，前几个版本可能支持 Scala，但后几个版本可能就不支持了。这种不确定性可能会对学习和使用带来困扰。相比之下，Java 和 Python 的支持更为稳定，更适合作为学习和使用的语言。
+
+2. **易用性**：Python 以其简洁明了的语法和丰富的库被广泛应用于数据处理和分析领域，对于初学者来说更易上手。Java 作为一种静态类型语言，其严谨的类型系统和广泛的工业应用也使其成为学习 Flink 的好选择。
+
+3. **避免干扰**：如上文所述，学习 Flink 的重点应该是理解流数据处理的基础思想，而非特定的技术或语言。引入 Scala 可能会因其复杂的语法和特性而干扰对基础思想的理解。相比之下，Java 和 Python 的语法更为直观和简洁，更有利于理解和实现流数据处理的基础思想。
+
+4. **适应性**：随着编程语言的发展和编译环境的改进，某些编程技术的性能可能会有所变化。例如，有一段代码最初使用 for 循环来实现，但速度很慢。后来改成列表推导式，速度提升了。但是，随着编程语言的发展和编译环境的改进，for 循环有时可能比列表推导式更快。因此，选择一种更为稳定和广泛使用的语言，如 Java 或 Python，可能会更有利于适应这种变化。
+
+总的来说，虽然 Scala 在某些方面可能有其优势，但在学习 Flink 的过程中，选择 Java 和 Python 可能会更为合适。
+
 有些函数和方法在某些版本上是实现的，但在后续版本中可能会被修改。
 在这种情况下，教大家记忆某个编程语言中的某个东西是否可修改，另一个是否不可修改，是没有意义的。
 
@@ -23,7 +36,7 @@
 
 在我们这门课中，我们强调的是一个框架性的认知。
 就是关于这个流数据的整个过程，从他的基本概念思路，再到产生发送接收和处理。
-这个过程会有很多环节，需要大家动手去探索。有可能你们之前学过Linux操作系统，也学过虚拟机，也学过Python等等。
+这个过程会有很多环节，需要大家动手去探索。有可能之前学过Linux操作系统，也学过虚拟机，也学过Python等等。
 之前学的那些基础知识，在我们这一面这种层次的课程就要开始应用了。
 
 本来，我已经为大家准备好了一个几乎完整的开发环境。虚拟机里面装好了所有的运行必备的组件以及编译器等等。
@@ -31,10 +44,10 @@
 这样能有机会了解每一步的操作，以便在以后的工作中能够独立完成。
 而不只是通过考试，却没有真正掌握这些知识。
 
-如果你以后要从事这方面的相关工作，听了这一门课就够了吗？
+如果以后要从事这方面的相关工作，听了这一门课就够了吗？
 那绝对不可能。因为任何一门大学的课程，一般都是一个概述。
-通过这种课程，我们的目的是让你了解这个领域的基础概念、基础思维和基础思路。
-然后，你需要进一步深入学习，可能去读研究生，专门从事学术领域的相关研究。
+通过这种课程，我们的目的是让了解这个领域的基础概念、基础思维和基础思路。
+然后，需要进一步深入学习，可能去读研究生，专门从事学术领域的相关研究。
 或者在具体的生产环境中去探索这方面的更深入的开发工作。
 
 ## 1.2 编程语言选择与代码难度
@@ -68,6 +81,16 @@
 很多内容的复杂也就是思路和架构上的复杂性看上去吓人。
 实际上基本概念落实到代码中可能就有几百行代码顶多了。
 有的甚至就几十行代码就能完成。
+
+在代码阅读和运行的过程中，可以使用一些AI助手：
+
+1. **GitHub Copilot**：这是一个由GitHub和OpenAI共同开发的AI编程助手，可以在编写代码时提供代码建议。它可以帮助理解代码，生成新的代码，甚至修复代码中的错误。
+
+2. **CodeGeex**：这是一个AI编程助手，可以在编写代码时提供代码补全建议。它支持多种编程语言，包括Python、Java、JavaScript等。
+
+3. **通义灵码**：这是一个基于通义大模型的智能编码助手，可以根据代码文件和上下文，自动生成代码、单元测试、代码注释等，支持多种语言和框架。通义灵码还提供研发智能问答能力
+
+这些AI助手可以帮助更好地理解代码，提高编程效率，减少错误。但请注意，它们只是工具，不能替代真正的编程理解和实践。
 
 ## 1.3 数据的基础认知
 
@@ -181,7 +204,7 @@
 
 ![](./images/bounded-unbounded.png)
 
-批处理是有界数据流处理的范例。在这种模式下，你可以选择在计算结果输出之前输入整个数据集，这也就意味着你可以对整个数据集的数据进行排序、统计或汇总计算后再输出结果。
+批处理是有界数据流处理的范例。在这种模式下，可以选择在计算结果输出之前输入整个数据集，这也就意味着可以对整个数据集的数据进行排序、统计或汇总计算后再输出结果。
 
 流处理正相反，其涉及无界数据流。至少理论上来说，它的数据输入永远不会结束，因此程序必须持续不断地对到达的数据进行处理。
 
@@ -483,7 +506,7 @@ VirtualBox 的性能表现稍差，但有非常全面的配置选项，尤其是
 然后在安装好的虚拟化平台上来安装多个虚拟机系统。
 这种安装方式被用于很多企业的开发和生产环境中，与容器和资源管理调度等相结合，可以实现服务的冗余备份和无感知迁移。
 
-还有一种更为复杂一点的玩法，是使用嵌套虚拟化（nested virtualization），这需要你的处理器等硬件平台支持。
+还有一种更为复杂一点的玩法，是使用嵌套虚拟化（nested virtualization），这需要处理器等硬件平台支持。
 对于Intel处理器，需要VT-x支持；对于AMD处理器，需要AMD-V支持。当然，最近几年的主流处理器可能都支持了。
 在硬件支持的前提下，可以用桌面虚拟化的方式借助 VMware Player 或者 VirtualBox，在其中安装 PVE 或者 ESXi 之类的虚拟化平台，然后再在平台上安装需要的虚拟机。
 当然，嵌套虚拟化可能要面对网络设置和存储资源分配等多方面较为复杂的配置问题。
@@ -934,7 +957,7 @@ start reading data from kafka
 10> {'total_bytes': 987, 'total_words': 177, 'most_frequent_word': 'and', 'most_frequent_word_count': 8}
 ```
 
-# 6 Kafka + PyFlink 生成、传输、展示表格数据流
+# 6 Kafka + PyFlink 生成、传输、展示文本数据流
 
 ## 6.1 基于文本生成数据流
 
@@ -975,7 +998,7 @@ def send_file_to_kafka(file_path: str, topic: str, bootstrap_servers: str):
                 producer.send(topic, data_bytes)
                 lines_send += 10
                 # 计算已发送的百分比
-                percent_sent = (lines_send / lines_total) * 100              
+                percent_sent = (lines_send / lines_total) * 100          
                 bytes_sent = len(data_bytes)
                 print(f"Sent {bytes_sent} bytes {topic} {percent_sent:.2f}% sent")
                 # 每3秒检查一次
@@ -1002,7 +1025,7 @@ Sent 78 bytes data 0.08% sent
 Sent 75 bytes data 0.09% sent
 ```
 
-## 6.2 使用 Kafka-Python 接收表格数据流
+## 6.2 使用 Kafka-Python 接收文本数据流
 
 使用以下代码将数据流中主题为hamlet的文本数据展示出来。
 
@@ -1259,7 +1282,7 @@ def send_file_to_kafka(file_path: str, topic: str, bootstrap_servers: str):
                 producer.send(topic, data_bytes)
                 lines_send += 10
                 # 计算已发送的百分比
-                percent_sent = (lines_send / lines_total) * 100              
+                percent_sent = (lines_send / lines_total) * 100          
                 bytes_sent = len(data_bytes)
                 print(f"Sent {bytes_sent} bytes {topic} {percent_sent:.2f}% sent")
                 # 每3秒检查一次
@@ -1935,7 +1958,7 @@ def send_file_to_kafka(file_path: str, topic: str, bootstrap_servers: str):
                 producer.send(topic, data_bytes)
                 lines_send += 10
                 # 计算已发送的百分比
-                percent_sent = (lines_send / lines_total) * 100              
+                percent_sent = (lines_send / lines_total) * 100          
                 bytes_sent = len(data_bytes)
                 print(f"Sent {bytes_sent} bytes {topic} {percent_sent:.2f}% sent")
                 # 每3秒检查一次
@@ -2165,7 +2188,7 @@ def read_from_kafka():
         deserialization_schema= SimpleStringSchema('UTF-8'), 
         properties={'bootstrap.servers': 'localhost:9092', 'group.id': 'my-group'} 
     )
-      
+  
     # 将kafka_consumer添加到StreamExecutionEnvironment中
     stream = env.add_source(kafka_consumer)
     # 将stream中的每一行数据转换为csv格式
