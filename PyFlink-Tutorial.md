@@ -1039,9 +1039,9 @@ Sent 78 bytes data 0.08% sent
 Sent 75 bytes data 0.09% sent
 ```
 
-## 6.2 使用 Kafka-Python 接收文本数据流
+## 6.2 使用 PyFlink 接收文本数据流
 
-使用以下代码将数据流中主题为hamlet的文本数据展示出来。
+使用以下代码将数据流中主题为data.csv的文本数据展示出来。
 
 ```Python
 import os
@@ -1190,6 +1190,18 @@ start reading data from kafka
 1> 2022
 1> 2022
 ```
+
+## 6.4 PyFlink运行过程的注意事项
+
+PyFlink可以从Kafka接收数据流，有三种起点模式（Starting Position）：
+
+1. **Earliest**：从最早的记录开始消费，即从0偏移量开始。这是默认的起点模式。
+
+2. **Latest**：从最新的记录开始消费，即从最后一个偏移量开始。如果在消费者启动后有新的记录进入，那么这些新的记录会被消费。
+
+3. **GroupOffsets**：从消费者组上次的偏移量开始消费。如果找不到上次的偏移量，例如消费者组是新的，那么会退回到默认的模式。
+
+这三种模式的主要差异在于消费的起点不同，Earliest模式适合需要从头开始处理所有数据的场景，Latest模式适合只关心最新数据的场景，而GroupOffsets模式适合在消费者组中共享消费进度的场景。
 
 # 7 PyFlink 数据流
 
