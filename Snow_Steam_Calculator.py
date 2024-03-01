@@ -90,10 +90,10 @@ def count_rows(data):
 def check_data(data):
     # 检查data中第一行的数据是否大于700
     if abs(float(data[0][1])) >= 700:
-        # 如果大于0.5，则播放beep函数
+        # 如果大于700，则播放beep函数
         beep()
         # 打印data中第一行的数据和ABS值
-        # print(f"data at {data[0][0]} is {(data[0][1])}",f" ABS Larger than 700!\n")
+        print(f"data at {data[0][0]} is {(data[0][1])}",f" ABS Larger than 700!\n")
     # 返回data
     return abs(float(data[0][1])) >= 700
 
