@@ -743,6 +743,11 @@ sudo docker-compose up -d
 
 # 5 Kafka 环境生成、传输、展示文本数据流
 
+```Bash
+pip install pyflink
+pip install --upgrade kafka-python
+```
+
 ## 5.1 基于文本生成数据流
 
 接下来我们使用 Python 创建一个生产者，读取本地的一个“hamlet.txt”文本文件，发送给运行在本地容器中的 Kafka。
