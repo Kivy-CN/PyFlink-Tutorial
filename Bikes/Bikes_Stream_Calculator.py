@@ -29,6 +29,9 @@ def map_years(x):
     return [i for i in x.split() if Year_Begin <= int(i) <= Year_End][0]
 
 def calculate_distance(row):
+    # Convert bytes to string and remove trailing newline
+    row = row[0].decode().strip()
+
     # Split the row into columns
     columns = row.split(',')
 
@@ -52,7 +55,6 @@ def calculate_distance(row):
 
     # Append the distance to the row and return it
     return row + ',' + str(distance)
-
 
 def read_from_kafka():
     # 获取流环境
