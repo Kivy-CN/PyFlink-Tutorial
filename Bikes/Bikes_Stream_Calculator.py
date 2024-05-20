@@ -28,6 +28,7 @@ def parse_csv(x):
     x = x.replace("[b'", "")
     x = x.replace("\n']", "")
     x = x.replace("\\n']", "")
+    x = x.replace("\\r']", "")
     result = csv.reader(io.StringIO(x))
     parsed_result = []
     for item in result:
