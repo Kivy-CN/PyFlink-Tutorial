@@ -2,6 +2,8 @@ import re
 import argparse
 import logging
 import sys
+import csv
+import io
 from io import StringIO
 import numpy as np 
 import pandas as pd
@@ -22,6 +24,24 @@ Year_End = 2023
 def extract_numbers(x):
     return ' '.join(re.findall(r'\d+', x))
 
+def parse_csv(x):    
+    x = x.replace("[b'", "")
+    x = x.replace("\n']", "")
+    x = x.replace("\\n']", "")
+    result = csv.reader(io.StringIO(x))
+    parsed_result = []
+    for item in result:
+        parsed_item = []
+        for element in item:
+            try:
+                parsed_element = int(element)
+            except ValueError:
+                parsed_element = element
+            parsed_item.append(parsed_element)
+        parsed_result.append(parsed_item)
+    return parsed_result
+
+
 def filter_years(x):
     return any([Year_Begin <= int(i) <= Year_End for i in x.split()])
 
@@ -29,6 +49,7 @@ def map_years(x):
     return [i for i in x.split() if Year_Begin <= int(i) <= Year_End][0]
 
 def calculate_distance(row):
+    row = parse_csv(row)
     # Check if row is a byte stream and decode if necessary
     if isinstance(row[0], bytes):
         row = row[0].decode().strip()
