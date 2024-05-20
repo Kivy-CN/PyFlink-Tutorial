@@ -49,8 +49,11 @@ def map_years(x):
     return [i for i in x.split() if Year_Begin <= int(i) <= Year_End][0]
 
 def calculate_distance(row):
+    row = parse_csv(row)
+    print(row)
     # Split the row into columns
-    columns = parse_csv(row)
+    columns = row.split(',')
+    print(len(columns))
 
     # Extract the relevant columns
     start_lat, start_long, end_lat, end_long = map(float, [columns[-4], columns[-3], columns[-2], columns[-1]])
