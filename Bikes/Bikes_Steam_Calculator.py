@@ -160,7 +160,16 @@ def read_from_kafka():
     # data_stream = parsed_stream.filter(check_data)
     # 定义输出流
     # data_stream.print()
-    parsed_stream.print()
+    # 定义一个新的函数来获取距离
+    def get_distance(item):
+        return item[-1]
+    
+    # 在parsed_stream上添加一个新的map操作
+    distance_stream = parsed_stream.map(get_distance)
+    
+    # 打印距离
+    distance_stream.print()
+    
     env.execute()
 
 if __name__ == '__main__':
