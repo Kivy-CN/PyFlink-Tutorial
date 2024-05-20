@@ -40,6 +40,7 @@ def parse_csv(x):
             parsed_item.append(parsed_element)
         parsed_result.append(parsed_item)
     return parsed_result
+    
 
 
 def filter_years(x):
@@ -48,14 +49,11 @@ def filter_years(x):
 def map_years(x):
     return [i for i in x.split() if Year_Begin <= int(i) <= Year_End][0]
 
-def calculate_distance(row):
-    print(row)
-    # Split the row into columns
-    columns = parse_csv(row)
-    print(columns)
+def calculate_distance(x):
+    print(x)
 
-    # Extract the relevant columns
-    start_lat, start_long, end_lat, end_long = map(float, [columns[-4], columns[-3], columns[-2], columns[-1]])
+    # Extract the relevant x
+    start_lat, start_long, end_lat, end_long = map(float, [x[-4], x[-3], x[-2], x[-1]])
 
     # Convert latitude and longitude from degrees to radians
     start_lat, start_long, end_lat, end_long = map(math.radians, [start_lat, start_long, end_lat, end_long])
@@ -73,7 +71,7 @@ def calculate_distance(row):
     distance = c * r
 
     # Append the distance to the row and return it
-    return row + ',' + str(distance)
+    return x + ',' + str(distance)
 
 def read_from_kafka():
     # 获取流环境
@@ -97,7 +95,8 @@ def read_from_kafka():
     # ds = ds.map(extract_numbers)
     # ds = ds.filter(filter_years)
     # ds = ds.map(map_years)
-    ds = ds.map(calculate_distance)
+    ds = ds.map(parse_csv)
+    # ds = ds.map(calculate_distance)
     ds.print()
     env.execute()
 
