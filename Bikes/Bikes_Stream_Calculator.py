@@ -43,6 +43,36 @@ def parse_csv(x):
     return parsed_result
     
 
+from math import radians, cos, sin, asin, sqrt
+
+def haversine(lon1, lat1, lon2, lat2):
+    """
+    Calculate the great circle distance in kilometers between two points 
+    on the earth (specified in decimal degrees)
+    """
+    # convert decimal degrees to radians 
+    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+
+    # haversine formula 
+    dlon = lon2 - lon1 
+    dlat = lat2 - lat1 
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    c = 2 * asin(sqrt(a)) 
+    r = 6371 # Radius of earth in kilometers. Use 3956 for miles. Determines return value units.
+    return c * r
+
+def calculate_distance(x):
+    data =x[0]
+    """
+    Extract the start and end coordinates from the data and calculate the distance
+    """
+    start_lat = float(data[7])
+    start_lon = float(data[8])
+    end_lat = float(data[9])
+    end_lon = float(data[10].strip('\\r'))
+
+    return haversine(start_lon, start_lat, end_lon, end_lat)
+
 
 def filter_years(x):
     return any([Year_Begin <= int(i) <= Year_End for i in x.split()])
@@ -51,31 +81,7 @@ def map_years(x):
     return [i for i in x.split() if Year_Begin <= int(i) <= Year_End][0]
 
 def calculate_distance(data):
-    x = data[0]
-    # Check if the data is valid
-    if not all(element.replace('.', '', 1).isdigit() for element in x[-4:]):
-        return x
-    # Extract the relevant x
-    start_lat, start_long, end_lat, end_long = map(lambda s: float(s.replace('\\r', '')), [x[-4], x[-3], x[-2], x[-1]])
-
-    # Convert latitude and longitude from degrees to radians
-    start_lat, start_long, end_lat, end_long = map(math.radians, [start_lat, start_long, end_lat, end_long])
-
-    # Haversine formula
-    dlon = end_long - start_long
-    dlat = end_lat - start_lat
-    a = math.sin(dlat/2)**2 + math.cos(start_lat) * math.cos(end_lat) * math.sin(dlon/2)**2
-    c = 2 * math.asin(math.sqrt(a))
-
-    # Radius of earth in kilometers. Use 3956 for miles
-    r = 6371
-
-    # Calculate the result
-    distance = c * r
-
-    # Append the distance to the row and return it
-    x.append(distance)
-    return x
+    pass
 
 def read_from_kafka():
     # 获取流环境
