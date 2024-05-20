@@ -51,7 +51,10 @@ def map_years(x):
     return [i for i in x.split() if Year_Begin <= int(i) <= Year_End][0]
 
 def calculate_distance(data):
-    x= data[0]
+    x = data[0]
+    # Check if the data is valid
+    if not all(element.replace('.', '', 1).isdigit() for element in x[-4:]):
+        return x
     # Extract the relevant x
     start_lat, start_long, end_lat, end_long = map(lambda s: float(s.replace('\\r', '')), [x[-4], x[-3], x[-2], x[-1]])
 
