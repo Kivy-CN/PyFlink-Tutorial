@@ -79,7 +79,7 @@ def calculate_distance(x):
         print(f"Invalid data: {data}")
         return None
 
-    return x,haversine(start_lon, start_lat, end_lon, end_lat)
+    return haversine(start_lon, start_lat, end_lon, end_lat)
 
 
 def filter_years(x):
