@@ -40,4 +40,4 @@ def send_file_to_kafka(file_path: str, topic: str, bootstrap_servers: str):
         if user_input == "q":
             break
 # 调用函数，将文件发送到Kafka
-send_file_to_kafka("./data.csv",  "bikes", "localhost:9092")
+send_file_to_kafka("./bikes.csv",  "bikes", "localhost:9092")
