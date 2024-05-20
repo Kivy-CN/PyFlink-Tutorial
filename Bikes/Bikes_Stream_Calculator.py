@@ -37,7 +37,8 @@ def parse_csv(x):
             try:
                 parsed_element = int(element)
             except ValueError:
-                parsed_element = element
+                # Remove the last character if it is '\\r'
+                parsed_element = element[:-1] if element.endswith('\\r') else element
             parsed_item.append(parsed_element)
         parsed_result.append(parsed_item)
     return parsed_result
