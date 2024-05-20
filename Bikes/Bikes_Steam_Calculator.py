@@ -65,6 +65,7 @@ def parse_csv(x):
         distance = calculate_distance(start_latitude, start_longitude, end_latitude, end_longitude)
         parsed_item.append(distance)
         parsed_result.append(parsed_item)
+    print(parsed_result)
     return parsed_result
 # 定义一个count_rows函数，用于计算data中行数和类型，并打印出来
 def count_rows(data):
