@@ -16,6 +16,7 @@ from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.datastream.connectors.kafka import FlinkKafkaProducer, FlinkKafkaConsumer
 
 import math
+from math import radians, cos, sin, asin, sqrt
 
 # 定义开始年份和结束年份
 Year_Begin =1999
@@ -42,8 +43,6 @@ def parse_csv(x):
         parsed_result.append(parsed_item)
     return parsed_result
     
-
-from math import radians, cos, sin, asin, sqrt
 
 def haversine(lon1, lat1, lon2, lat2):
     """
@@ -79,9 +78,6 @@ def filter_years(x):
 
 def map_years(x):
     return [i for i in x.split() if Year_Begin <= int(i) <= Year_End][0]
-
-def calculate_distance(data):
-    pass
 
 def read_from_kafka():
     # 获取流环境
