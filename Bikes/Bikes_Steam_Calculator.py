@@ -23,6 +23,8 @@ from pyflink.datastream import StreamExecutionEnvironment, RuntimeExecutionMode
 from pyflink.datastream.connectors.file_system import FileSource, StreamFormat
 from pyflink.common import SimpleStringSchema
 
+import math
+
 # 定义一个beep函数，用于发出哔声，根据当前操作系统不同，使用不同的库
 def beep():
     if platform.system() == "Windows":
@@ -33,7 +35,17 @@ def beep():
     else:
         print("Unsupported platform")
 
-# 定义一个parse_csv函数，用于解析csv文件，并返回解析后的结果
+# 定义一个函数来计算两个经纬度之间的距离
+def calculate_distance(lat1, lon1, lat2, lon2):
+    R = 6371  # 地球半径，单位为公里
+    dLat = math.radians(lat2 - lat1)
+    dLon = math.radians(lon2 - lon1)
+    a = math.sin(dLat/2) * math.sin(dLat/2) + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dLon/2) * math.sin(dLon/2)
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+    distance = R * c
+    return distance
+
+# 修改parse_csv函数
 def parse_csv(x):    
     x = x.replace("[b'", "")
     x = x.replace("\n']", "")
@@ -48,9 +60,12 @@ def parse_csv(x):
             except ValueError:
                 parsed_element = element
             parsed_item.append(parsed_element)
+        # 计算出行距离
+        start_latitude, start_longitude, end_latitude, end_longitude = parsed_item[-4], parsed_item[-3], parsed_item[-2], parsed_item[-1]
+        distance = calculate_distance(start_latitude, start_longitude, end_latitude, end_longitude)
+        parsed_item.append(distance)
         parsed_result.append(parsed_item)
     return parsed_result
-
 # 定义一个count_rows函数，用于计算data中行数和类型，并打印出来
 def count_rows(data):
     row_count = len(data)
@@ -141,9 +156,10 @@ def read_from_kafka():
     # 将读取的数据进行解析
     parsed_stream = stream.map(parse_csv)
     # 过滤掉不符合条件的数据
-    data_stream = parsed_stream.filter(check_data)
+    # data_stream = parsed_stream.filter(check_data)
     # 定义输出流
-    data_stream.print()
+    # data_stream.print()
+    parsed_stream.print()
     env.execute()
 
 if __name__ == '__main__':
