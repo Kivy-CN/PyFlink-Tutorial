@@ -94,9 +94,9 @@ def read_from_kafka():
     sys.stdout = output
     # 添加源，并过滤出指定年份的数据
     ds = env.add_source(kafka_consumer)
-    ds = ds.map(extract_numbers)
-    ds = ds.filter(filter_years)
-    ds = ds.map(map_years)
+    # ds = ds.map(extract_numbers)
+    # ds = ds.filter(filter_years)
+    # ds = ds.map(map_years)
     ds = ds.map(calculate_distance)
     ds.print()
     env.execute()
