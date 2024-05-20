@@ -53,7 +53,7 @@ def map_years(x):
 def calculate_distance(data):
     x= data[0]
     # Extract the relevant x
-    start_lat, start_long, end_lat, end_long = map(float, [x[-4], x[-3], x[-2], x[-1]])
+    start_lat, start_long, end_lat, end_long = map(lambda s: float(s.replace('\\r', '')), [x[-4], x[-3], x[-2], x[-1]])
 
     # Convert latitude and longitude from degrees to radians
     start_lat, start_long, end_lat, end_long = map(math.radians, [start_lat, start_long, end_lat, end_long])
@@ -97,7 +97,7 @@ def read_from_kafka():
     # ds = ds.filter(filter_years)
     # ds = ds.map(map_years)
     ds = ds.map(parse_csv)
-    # ds = ds.map(calculate_distance)
+    ds = ds.map(calculate_distance)
     ds.print()
     env.execute()
 
