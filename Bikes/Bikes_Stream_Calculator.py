@@ -60,10 +60,11 @@ def haversine(lon1, lat1, lon2, lat2):
     r = 6371 # Radius of earth in kilometers. Use 3956 for miles. Determines return value units.
     return c * r
 
-def calculate_distance(data):
+def calculate_distance(x):
     """
     Extract the start and end coordinates from the data and calculate the distance
     """
+    data = x[0]
     try:
         print(f"data[7]: {data[7]}")  # print the value of data[7]
         start_lat = float(data[7])
