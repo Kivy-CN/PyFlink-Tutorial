@@ -37,8 +37,7 @@ def parse_csv(x):
             try:
                 parsed_element = int(element)
             except ValueError:
-                # Remove the last character if it is '\\r'
-                parsed_element = element[:-1] if element.endswith('\\r') else element
+                parsed_element = element
             parsed_item.append(parsed_element)
         parsed_result.append(parsed_item)
     return parsed_result
@@ -51,9 +50,8 @@ def filter_years(x):
 def map_years(x):
     return [i for i in x.split() if Year_Begin <= int(i) <= Year_End][0]
 
-def calculate_distance(x):
-    print(x)
-
+def calculate_distance(data):
+    x= data[0]
     # Extract the relevant x
     start_lat, start_long, end_lat, end_long = map(float, [x[-4], x[-3], x[-2], x[-1]])
 
@@ -73,7 +71,8 @@ def calculate_distance(x):
     distance = c * r
 
     # Append the distance to the row and return it
-    return x + ',' + str(distance)
+    x.append(distance)
+    return x
 
 def read_from_kafka():
     # 获取流环境
