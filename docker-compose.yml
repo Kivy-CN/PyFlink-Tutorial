@@ -1,28 +1,26 @@
-version: '3'
 services:
   zookeeper:
     image: 'bitnami/zookeeper:latest'
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
+    restart: always
+
   kafka:
     image: 'bitnami/kafka:latest'
     ports:
       - '9092:9092'
+      - '29092:29092'
     environment:
-      - KAFKA_ADVERTISED_HOST_NAME=localhost
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://192.168.56.101:9092,PLAINTEXT_INTERNAL://kafka:29092
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092,PLAINTEXT_INTERNAL://0.0.0.0:29092
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
-      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
       - KAFKA_CREATE_TOPICS=test:1:1
       - ALLOW_PLAINTEXT_LISTENER=yes
     depends_on:
       - zookeeper
-
-
-
-# 可以使用以下命令停止并删除当前所有的 Docker 容器：
-# docker stop $(docker ps -a -q) && docker rm $(docker ps -a -q)
-# 这条命令会先停止所有正在运行的 Docker 容器，然后删除所有 Docker 容器。
-# 如果需要删除所有 Docker 镜像，可以使用以下命令：
-# docker rmi $(docker images -q)
-# 请注意，这些命令会删除所有 Docker 容器和镜像，包括正在运行的容器和镜像
+    restart: always
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "9092"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
